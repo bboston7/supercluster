@@ -81,8 +81,8 @@ type LoadGen =
       kiloBytesPerDataEntryWeights: int list
       txSizeBytesIntervals: int list
       txSizeBytesWeights: int list
-      instructionsLow: int64 option
-      instructionsHigh: int64 option
+      instructionsIntervals: int64 list
+      instructionsWeights: int list
 
       // Fields for SOROBAN_CREATE_UPGRADE parameters
       maxContractSizeBytes: int option
@@ -137,6 +137,8 @@ type LoadGen =
           @ listParam "kilobytesweights" self.kiloBytesPerDataEntryWeights
           @ listParam "txsizeintervals" self.txSizeBytesIntervals
           @ listParam "txsizeweights" self.txSizeBytesWeights
+          @ listParam "cpuintervals" self.instructionsIntervals
+          @ listParam "cpuweights" self.instructionsWeights
 
         let optionalParam (name: string) (value: 'T option) =
             match value with
@@ -147,8 +149,6 @@ type LoadGen =
             optionalParam "maxfeerate" self.maxfeerate
           @ optionalParam "wasms" self.wasms
           @ optionalParam "instances" self.instances
-          @ optionalParam "cpulow" self.instructionsLow
-          @ optionalParam "cpuhigh" self.instructionsHigh
           @ optionalParam "mxcntrctsz" self.maxContractSizeBytes
           @ optionalParam "mxcntrctkeysz" self.maxContractDataKeySizeBytes
           @ optionalParam "mxcntrctdatasz" self.maxContractDataEntrySizeBytes
@@ -191,8 +191,8 @@ type LoadGen =
           kiloBytesPerDataEntryWeights = []
           txSizeBytesIntervals = []
           txSizeBytesWeights = []
-          instructionsLow = None
-          instructionsHigh = None
+          instructionsIntervals = []
+          instructionsWeights = []
           maxContractSizeBytes = None
           maxContractDataKeySizeBytes = None
           maxContractDataEntrySizeBytes = None
@@ -285,8 +285,8 @@ type MissionContext with
               kiloBytesPerDataEntryWeights = [1]
               txSizeBytesIntervals = [0 ; 1001]
               txSizeBytesWeights = [1]
-              instructionsLow = Some(0L)
-              instructionsHigh = Some(5000000L) }
+              instructionsIntervals = [0L ; 5000001L]
+              instructionsWeights = [1] }
 
     member self.SetupSorobanInvoke : LoadGen =
         { LoadGen.GetDefault() with
