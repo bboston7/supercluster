@@ -79,8 +79,8 @@ type LoadGen =
       dataEntriesWeights: int list
       kiloBytesPerDataEntryIntervals: int list
       kiloBytesPerDataEntryWeights: int list
-      txSizeBytesLow: int option
-      txSizeBytesHigh: int option
+      txSizeBytesIntervals: int list
+      txSizeBytesWeights: int list
       instructionsLow: int64 option
       instructionsHigh: int64 option
 
@@ -126,6 +126,8 @@ type LoadGen =
         let listParam (name: string) (values: 'T list) =
             match values with
             | [] -> []
+            // TODO: This space separator will probably be URL encoded. Will the
+            // C++ decode it back to a space? If not, I need some other plan.
             | _ -> [ (name, String.concat " " [for v in values do yield v.ToString()]) ]
 
         let listParams =
@@ -133,6 +135,8 @@ type LoadGen =
           @ listParam "dataentriesweights" self.dataEntriesWeights
           @ listParam "kilobytesintervals" self.kiloBytesPerDataEntryIntervals
           @ listParam "kilobytesweights" self.kiloBytesPerDataEntryWeights
+          @ listParam "txsizeintervals" self.txSizeBytesIntervals
+          @ listParam "txsizeweights" self.txSizeBytesWeights
 
         let optionalParam (name: string) (value: 'T option) =
             match value with
@@ -143,8 +147,6 @@ type LoadGen =
             optionalParam "maxfeerate" self.maxfeerate
           @ optionalParam "wasms" self.wasms
           @ optionalParam "instances" self.instances
-          @ optionalParam "txsizelow" self.txSizeBytesLow
-          @ optionalParam "txsizehigh" self.txSizeBytesHigh
           @ optionalParam "cpulow" self.instructionsLow
           @ optionalParam "cpuhigh" self.instructionsHigh
           @ optionalParam "mxcntrctsz" self.maxContractSizeBytes
@@ -187,8 +189,8 @@ type LoadGen =
           dataEntriesWeights = []
           kiloBytesPerDataEntryIntervals = []
           kiloBytesPerDataEntryWeights = []
-          txSizeBytesLow = None
-          txSizeBytesHigh = None
+          txSizeBytesIntervals = []
+          txSizeBytesWeights = []
           instructionsLow = None
           instructionsHigh = None
           maxContractSizeBytes = None
@@ -281,8 +283,8 @@ type MissionContext with
               dataEntriesWeights = [1]
               kiloBytesPerDataEntryIntervals = [1 ; 6]
               kiloBytesPerDataEntryWeights = [1]
-              txSizeBytesLow = Some(0)
-              txSizeBytesHigh = Some(1000)
+              txSizeBytesIntervals = [0 ; 1001]
+              txSizeBytesWeights = [1]
               instructionsLow = Some(0L)
               instructionsHigh = Some(5000000L) }
 
