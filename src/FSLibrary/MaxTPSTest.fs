@@ -4,7 +4,7 @@
 
 module MaxTPSTest
 
-// TODO: Document what this is (a module providing a configurable max tps test to use in missions)
+// This module provides a configurable max TPS test to use in missions
 
 open Logging
 open StellarCoreHTTP
@@ -15,6 +15,8 @@ open StellarNetworkData
 open StellarStatefulSets
 open StellarSupercluster
 
+// TODO: Take an additional setup function so blended TPS test can setup blended
+// mode
 let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) =
     let allNodes =
         if context.pubnetData.IsSome then
@@ -109,7 +111,7 @@ let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) =
                 finalTxRate.Value
 
             let mutable results = []
-            // As the runs take a while, set a threshold of 10, so we get a reasonbale approximation
+            // As the runs take a while, set a threshold of 10, so we get a reasonable approximation
             let threshold = 10
             let numRuns = (if context.numRuns.IsSome then context.numRuns.Value else 3)
 

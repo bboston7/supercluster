@@ -65,6 +65,7 @@
     <Compile Include="MissionProtocolUpgradeWithLoad.fs" />
     <Compile Include="MissionDatabaseInplaceUpgrade.fs" />
     <Compile Include="MissionAcceptanceUnitTests.fs" />
+    <Compile Include="MissionMaxTPSBlended.fs" />
     <Compile Include="StellarMission.fs" />
   </ItemGroup>
   <ItemGroup>

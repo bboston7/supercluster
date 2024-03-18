@@ -50,6 +50,7 @@ type LoadGenMode =
     | SorobanInvokeSetup
     | SorobanInvoke
 
+
     override self.ToString() =
         match self with
         | GenerateAccountCreationLoad -> "create"
