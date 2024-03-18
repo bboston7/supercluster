@@ -112,9 +112,10 @@ type LoadGen =
       evictionScanSize: int64 option
       startingEvictionScanLevel: int option
 
-      // TODO: Add blend mode options
-      // TODO: Add options for SOROBAN_UPLOAD mode
-      // TODO: Add minpercentsuccess option for SOROBAN_INVOKE mode
+      // Fields for BLEND_CLASSIC_SOROBAN mode
+      payWeight: int option
+      sorobanUploadWeight: int option
+      sorobanInvokeWeight: int option
       }
 
     member self.ToQuery : (string * string) list =
@@ -181,6 +182,9 @@ type LoadGen =
           @ optionalParam "wndowsz" self.bucketListSizeWindowSampleSize
           @ optionalParam "evctsz" self.evictionScanSize
           @ optionalParam "evctlvl" self.startingEvictionScanLevel
+          @ optionalParam "payweight" self.payWeight
+          @ optionalParam "sorobanuploadweight" self.sorobanUploadWeight
+          @ optionalParam "sorobaninvokeweight" self.sorobanInvokeWeight
 
         mandatoryParams @ listParams @ optionalParams
 
@@ -227,7 +231,11 @@ type LoadGen =
           txMaxSizeBytes = None
           bucketListSizeWindowSampleSize = None
           evictionScanSize = None
-          startingEvictionScanLevel = None }
+          startingEvictionScanLevel = None
+          payWeight = None
+          sorobanUploadWeight = None
+          sorobanInvokeWeight = None
+        }
 
 type MissionContext with
 
@@ -315,6 +323,9 @@ type MissionContext with
               skiplowfeetxs = self.skipLowFeeTxs
               wasms = self.numWasms
               instances = self.numInstances }
+
+    // TODO: Add methods for BLEND_CLASSIC_SOROBAN and
+    // BLEND_CLASSIC_SOROBAN_SETUP
 
 let DefaultAccountCreationLoadGen =
     { LoadGen.GetDefault() with
