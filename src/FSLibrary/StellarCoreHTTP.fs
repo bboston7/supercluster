@@ -83,6 +83,7 @@ type LoadGen =
       txSizeBytesWeights: int list
       instructionsIntervals: int64 list
       instructionsWeights: int list
+      minPercentSuccess: int option
 
       // Fields for SOROBAN_CREATE_UPGRADE parameters
       maxContractSizeBytes: int option
@@ -149,6 +150,7 @@ type LoadGen =
             optionalParam "maxfeerate" self.maxfeerate
           @ optionalParam "wasms" self.wasms
           @ optionalParam "instances" self.instances
+          @ optionalParam "minpercentsuccess" self.minPercentSuccess
           @ optionalParam "mxcntrctsz" self.maxContractSizeBytes
           @ optionalParam "mxcntrctkeysz" self.maxContractDataKeySizeBytes
           @ optionalParam "mxcntrctdatasz" self.maxContractDataEntrySizeBytes
@@ -193,6 +195,7 @@ type LoadGen =
           txSizeBytesWeights = []
           instructionsIntervals = []
           instructionsWeights = []
+          minPercentSuccess = None
           maxContractSizeBytes = None
           maxContractDataKeySizeBytes = None
           maxContractDataEntrySizeBytes = None
@@ -286,7 +289,8 @@ type MissionContext with
               txSizeBytesIntervals = [0 ; 1001]
               txSizeBytesWeights = [1]
               instructionsIntervals = [0L ; 5000001L]
-              instructionsWeights = [1] }
+              instructionsWeights = [1]
+              minPercentSuccess = Some 0 }
 
     member self.SetupSorobanInvoke : LoadGen =
         { LoadGen.GetDefault() with
