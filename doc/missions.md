@@ -135,3 +135,7 @@ Test catchup to ledger state that spans multiple protocols supporting Soroban.
 ## MissionMixedImageNetworkSurvey
 
 Run a network survey with mixed version images on a small network of nodes.
+
+## MissionMaxTPSMixed
+
+Stress test a network of simulated Tier1 topology with a mix of classic and soroban traffic and report maximum achieved throughput.

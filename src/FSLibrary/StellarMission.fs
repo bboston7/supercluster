@@ -40,6 +40,7 @@ open MissionSorobanConfigUpgrades
 open MissionSorobanInvokeHostLoad
 open MissionSorobanCatchupWithPrevAndCurr
 open MissionMixedImageNetworkSurvey
+open MissionMaxTPSMixed
 
 type Mission = (MissionContext -> unit)
 
@@ -80,4 +81,5 @@ let allMissions : Map<string, Mission> =
                  ("SorobanConfigUpgrades", sorobanConfigUpgrades)
                  ("SorobanInvokeHostLoad", sorobanInvokeHostLoad)
                  ("SorobanCatchupWithPrevAndCurr", sorobanCatchupWithPrevAndCurr)
-                 ("MixedImageNetworkSurvey", mixedImageNetworkSurvey) |]
+                 ("MixedImageNetworkSurvey", mixedImageNetworkSurvey)
+                 ("MaxTPSMixed", maxTPSMixed) |]
