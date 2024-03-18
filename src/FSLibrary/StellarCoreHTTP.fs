@@ -72,6 +72,10 @@ type LoadGen =
       maxfeerate: int option
       skiplowfeetxs: bool
 
+      // Fields for SOROBAN_UPLOAD mode
+      wasmBytesIntervals: int list
+      wasmBytesWeights: int list
+
       // New fields for SOROBAN_INVOKE mode
       wasms: int option
       instances: int option
@@ -124,6 +128,9 @@ type LoadGen =
               ("offset", self.offset.ToString())
               ("skiplowfeetxs", (if self.skiplowfeetxs then "true" else "false")) ]
 
+        // Encode a list param. All list parameters are optional, so this
+        // function will translate an empty `values` list to an empty list of
+        // query parameters.
         let listParam (name: string) (values: 'T list) =
             match values with
             | [] -> []
@@ -132,7 +139,9 @@ type LoadGen =
             | _ -> [ (name, String.concat " " [for v in values do yield v.ToString()]) ]
 
         let listParams =
-            listParam "dataentriesintervals" self.dataEntriesIntervals
+            listParam "wasmBytesIntervals" self.wasmBytesIntervals
+          @ listParam "wasmBytesWeights" self.wasmBytesWeights
+          @ listParam "dataentriesintervals" self.dataEntriesIntervals
           @ listParam "dataentriesweights" self.dataEntriesWeights
           @ listParam "kilobytesintervals" self.kiloBytesPerDataEntryIntervals
           @ listParam "kilobytesweights" self.kiloBytesPerDataEntryWeights
@@ -185,6 +194,8 @@ type LoadGen =
           offset = 0
           maxfeerate = None
           skiplowfeetxs = false
+          wasmBytesIntervals = []
+          wasmBytesWeights = []
           wasms = None
           instances = None
           dataEntriesIntervals = []
@@ -289,8 +300,7 @@ type MissionContext with
               txSizeBytesIntervals = [0 ; 1001]
               txSizeBytesWeights = [1]
               instructionsIntervals = [0L ; 5000001L]
-              instructionsWeights = [1]
-              minPercentSuccess = Some 0 }
+              instructionsWeights = [1] }
 
     member self.SetupSorobanInvoke : LoadGen =
         { LoadGen.GetDefault() with
