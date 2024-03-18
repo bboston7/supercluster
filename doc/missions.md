@@ -131,3 +131,7 @@ Test resource-intensive InvokeHostFunction operations on a small network of node
 ## MissionSorobanCatchupWithPrevAndCurr
 
 Test catchup to ledger state that spans multiple protocols supporting Soroban.
+
+## MissionMaxTPSMixed
+
+Stress test a network of simulated Tier1 topology with a mix of classic and soroban traffic and report maximum achieved throughput.
