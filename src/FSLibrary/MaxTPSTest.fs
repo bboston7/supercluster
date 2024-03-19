@@ -19,7 +19,9 @@ open StellarSupercluster
 // mode? Or maybe just take an optional LoadGen and maxTPSTest can set it up if
 // it's Some? Also worth looking at how other modes handle invoke setup to
 // ensure I do it right here.
-let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) =
+let maxTPSTest (context: MissionContext)
+               (baseLoadGen: LoadGen)
+               (setupCfg: LoadGen option) =
     let allNodes =
         if context.pubnetData.IsSome then
             FullPubnetCoreSets context true false
@@ -56,6 +58,11 @@ let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) =
             formation.UpgradeProtocolToLatest allNodes
             upgradeMaxTxSetSize allNodes 10000
             formation.RunLoadgen sdf { context.GenerateAccountCreationLoad with accounts = numAccounts }
+
+            // Perform setup (if needed)
+            match setupCfg with
+            | Some cfg -> formation.RunLoadgen sdf cfg
+            | None -> ()
 
             let wait () = System.Threading.Thread.Sleep(5 * 60 * 1000)
 

@@ -30,4 +30,4 @@ let simulatePubnetTier1Perf (context: MissionContext) =
                 maxfeerate = None
                 skiplowfeetxs = false }
 
-    maxTPSTest context baseLoadGen
+    maxTPSTest context baseLoadGen None

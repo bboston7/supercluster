@@ -52,7 +52,6 @@ type LoadGenMode =
     | BlendClassicSoroban
     | BlendClassicSorobanSetup
 
-
     override self.ToString() =
         match self with
         | GenerateAccountCreationLoad -> "create"
@@ -329,8 +328,9 @@ type MissionContext with
               wasms = self.numWasms
               instances = self.numInstances }
 
-    // TODO: Add methods for BLEND_CLASSIC_SOROBAN and
-    // BLEND_CLASSIC_SOROBAN_SETUP
+    member self.SetupBlendClassicSoroban : LoadGen =
+        { self.SetupSorobanInvoke with
+            mode = BlendClassicSorobanSetup }
 
 let DefaultAccountCreationLoadGen =
     { LoadGen.GetDefault() with

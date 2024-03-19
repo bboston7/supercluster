@@ -36,6 +36,10 @@ let maxTPSBlended (baseContext: MissionContext) =
                 // SOROBAN_UPLOAD settings (set from testnet data)
                 wasmBytesIntervals = [for x in 0..4 -> x * 16 * 1024]
                 wasmBytesWeights = [132 ; 68 ; 92 ; 141]
+
+                // TODO: Override wasms and instances if None?
+                wasms = context.numWasms
+                instances = context.numInstances
                 dataEntriesIntervals = [0 ; 6; 12; 18; 24]
                 dataEntriesWeights = [380 ; 42 ; 5 ; 2]
                 // TODO: This isn't very granular, and  the average write size
@@ -50,12 +54,6 @@ let maxTPSBlended (baseContext: MissionContext) =
                     [0L ; 25000000L ; 50000000L ; 75000000L ; 100000000L]
                 instructionsWeights = [201 ; 183 ; 34 ; 11]
 
-
-                // TODO: SOROBAN_INVOKE settings
-                // TODO: Override wasms and instances if None?
-                wasms = context.numWasms
-                instances = context.numInstances
-
                 // Blend settings
                 payWeight = Some 50
                 sorobanUploadWeight = Some 5
@@ -63,4 +61,4 @@ let maxTPSBlended (baseContext: MissionContext) =
         }
 
     // TODO Need to pass a function to maxTPSTest that sets up the blended mode
-    maxTPSTest context baseLoadGen
+    maxTPSTest context baseLoadGen (Some context.SetupBlendClassicSoroban)
