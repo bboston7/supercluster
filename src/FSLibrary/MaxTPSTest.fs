@@ -16,7 +16,9 @@ open StellarStatefulSets
 open StellarSupercluster
 
 // TODO: Take an additional setup function so blended TPS test can setup blended
-// mode
+// mode? Or maybe just take an optional LoadGen and maxTPSTest can set it up if
+// it's Some? Also worth looking at how other modes handle invoke setup to
+// ensure I do it right here.
 let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) =
     let allNodes =
         if context.pubnetData.IsSome then

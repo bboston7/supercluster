@@ -24,12 +24,24 @@ let maxTPSBlended (baseContext: MissionContext) =
 
     let baseLoadGen =
         { LoadGen.GetDefault() with
-                mode = GeneratePaymentLoad
+                mode = BlendClassicSoroban
                 spikesize = context.spikeSize
                 spikeinterval = context.spikeInterval
                 offset = 0
                 maxfeerate = None
-                skiplowfeetxs = false }
+                skiplowfeetxs = false
+
+                // SOROBAN_UPLOAD settings (set from testnet data)
+                wasmBytesIntervals = [for x in 0..4 -> x * 16 * 1024]
+                wasmBytesWeights = [91 ; 50 ; 92 ; 64]
+
+                // TODO: SOROBAN_INVOKE settings
+
+                // Blend settings
+                payWeight = Some 50
+                sorobanUploadWeight = Some 5
+                sorobanInvokeWeight = Some 45
+        }
 
     // TODO Need to pass a function to maxTPSTest that sets up the blended mode
     maxTPSTest context baseLoadGen

@@ -49,6 +49,8 @@ type LoadGenMode =
     | CreateSorobanUpgrade
     | SorobanInvokeSetup
     | SorobanInvoke
+    | BlendClassicSoroban
+    | BlendClassicSorobanSetup
 
 
     override self.ToString() =
@@ -61,6 +63,8 @@ type LoadGenMode =
         | CreateSorobanUpgrade -> "create_upgrade"
         | SorobanInvokeSetup -> "soroban_invoke_setup"
         | SorobanInvoke -> "soroban_invoke"
+        | BlendClassicSoroban -> "blend_classic_soroban"
+        | BlendClassicSorobanSetup -> "blend_classic_soroban_setup"
 
 type LoadGen =
     { mode: LoadGenMode
