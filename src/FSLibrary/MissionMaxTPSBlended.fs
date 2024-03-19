@@ -31,11 +31,30 @@ let maxTPSBlended (baseContext: MissionContext) =
                 maxfeerate = None
                 skiplowfeetxs = false
 
+                // NOTE: Data set from https://docs.google.com/spreadsheets/d/1l92InLSZ_2SUFJnNIipfJCehYedI1jL-vKBHZ5NYjUM/edit#gid=879538951
+
                 // SOROBAN_UPLOAD settings (set from testnet data)
                 wasmBytesIntervals = [for x in 0..4 -> x * 16 * 1024]
-                wasmBytesWeights = [91 ; 50 ; 92 ; 64]
+                wasmBytesWeights = [132 ; 68 ; 92 ; 141]
+                dataEntriesIntervals = [0 ; 6; 12; 18; 24]
+                dataEntriesWeights = [380 ; 42 ; 5 ; 2]
+                // TODO: This isn't very granular, and  the average write size
+                // is actually under 1KB. I rounded anything under 1KB up, and
+                // anything over 1.5KB to 2KB. This skews the distribution a bit
+                // rightwards.
+                kiloBytesPerDataEntryIntervals = [1 ; 2 ; 3]
+                kiloBytesPerDataEntryWeights = [156 ; 6]
+                txSizeBytesIntervals = [100; 300; 500; 700; 900; 1100]
+                txSizeBytesWeights = [37; 6; 1; 4; 1]
+                instructionsIntervals =
+                    [0L ; 25000000L ; 50000000L ; 75000000L ; 100000000L]
+                instructionsWeights = [201 ; 183 ; 34 ; 11]
+
 
                 // TODO: SOROBAN_INVOKE settings
+                // TODO: Override wasms and instances if None?
+                wasms = context.numWasms
+                instances = context.numInstances
 
                 // Blend settings
                 payWeight = Some 50
