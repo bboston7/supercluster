@@ -46,8 +46,10 @@ let maxTPSBlended (baseContext: MissionContext) =
                 // is actually under 1KB. I rounded anything under 1KB up, and
                 // anything over 1.5KB to 2KB. This skews the distribution a bit
                 // rightwards.
-                kiloBytesPerDataEntryIntervals = [1 ; 2 ; 3]
-                kiloBytesPerDataEntryWeights = [156 ; 6]
+                // TODO: I think this is wrong. It's bytes written TOTAL, not
+                // per entry. I set the distributions as if it were per entry
+                totalBytesIntervals = [0 ; 1500 ; 3000 ; 4500 ; 6000]
+                totalBytesWeights = [382 ; 36 ; 10 ; 2]
                 txSizeBytesIntervals = [100; 300; 500; 700; 900; 1100]
                 txSizeBytesWeights = [37; 6; 1; 4; 1]
                 instructionsIntervals =
