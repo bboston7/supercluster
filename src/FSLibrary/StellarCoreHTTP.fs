@@ -50,7 +50,6 @@ type LoadGenMode =
     | SorobanInvokeSetup
     | SorobanInvoke
     | BlendClassicSoroban
-    | BlendClassicSorobanSetup
 
     override self.ToString() =
         match self with
@@ -63,7 +62,6 @@ type LoadGenMode =
         | SorobanInvokeSetup -> "soroban_invoke_setup"
         | SorobanInvoke -> "soroban_invoke"
         | BlendClassicSoroban -> "blend_classic_soroban"
-        | BlendClassicSorobanSetup -> "blend_classic_soroban_setup"
 
 type LoadGen =
     { mode: LoadGenMode
@@ -332,10 +330,6 @@ type MissionContext with
               skiplowfeetxs = self.skipLowFeeTxs
               wasms = self.numWasms
               instances = self.numInstances }
-
-    member self.SetupBlendClassicSoroban : LoadGen =
-        { self.SetupSorobanInvoke with
-            mode = BlendClassicSorobanSetup }
 
 let DefaultAccountCreationLoadGen =
     { LoadGen.GetDefault() with

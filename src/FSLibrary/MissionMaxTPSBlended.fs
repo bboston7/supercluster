@@ -64,4 +64,4 @@ let maxTPSBlended (baseContext: MissionContext) =
         }
 
     // TODO Need to pass a function to maxTPSTest that sets up the blended mode
-    maxTPSTest context baseLoadGen (Some context.SetupBlendClassicSoroban)
+    maxTPSTest context baseLoadGen (Some context.SetupSorobanInvoke)
