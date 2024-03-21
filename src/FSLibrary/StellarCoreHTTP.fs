@@ -75,6 +75,7 @@ type LoadGen =
       offset: int
       maxfeerate: int option
       skiplowfeetxs: bool
+      minSorobanPercentSuccess: int option
 
       // Fields for SOROBAN_UPLOAD mode
       wasmBytesIntervals: int list
@@ -96,7 +97,6 @@ type LoadGen =
       txSizeBytesWeights: int list
       instructionsIntervals: int64 list
       instructionsWeights: int list
-      minPercentSuccess: int option
 
       // Fields for SOROBAN_CREATE_UPGRADE parameters
       maxContractSizeBytes: int option
@@ -169,7 +169,7 @@ type LoadGen =
             optionalParam "maxfeerate" self.maxfeerate
           @ optionalParam "wasms" self.wasms
           @ optionalParam "instances" self.instances
-          @ optionalParam "minpercentsuccess" self.minPercentSuccess
+          @ optionalParam "minpercentsuccess" self.minSorobanPercentSuccess
           @ optionalParam "mxcntrctsz" self.maxContractSizeBytes
           @ optionalParam "mxcntrctkeysz" self.maxContractDataKeySizeBytes
           @ optionalParam "mxcntrctdatasz" self.maxContractDataEntrySizeBytes
@@ -219,7 +219,7 @@ type LoadGen =
           txSizeBytesWeights = []
           instructionsIntervals = []
           instructionsWeights = []
-          minPercentSuccess = None
+          minSorobanPercentSuccess = None
           maxContractSizeBytes = None
           maxContractDataKeySizeBytes = None
           maxContractDataEntrySizeBytes = None

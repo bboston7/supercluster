@@ -15,11 +15,9 @@ let maxTPSBlended (baseContext: MissionContext) =
         { baseContext with
               coreResources = SimulatePubnetTier1PerfResources
               installNetworkDelay = Some(baseContext.installNetworkDelay |> Option.defaultValue true)
-              // Simulated apply delays result in disabled history modes blended
-              // mode with non-zero invoke success rates requires. Therefore, we
-              // must disable these options.
-              simulateApplyDuration = None
-              simulateApplyWeight = None
+              // No additional DB overhead unless specified (this will measure the in-memory SQLite DB only)
+              simulateApplyDuration = Some(baseContext.simulateApplyDuration |> Option.defaultValue (seq { 0 }))
+              simulateApplyWeight = Some(baseContext.simulateApplyWeight |> Option.defaultValue (seq { 100 }))
               enableTailLogging = false }
 
     let baseLoadGen =
@@ -60,6 +58,9 @@ let maxTPSBlended (baseContext: MissionContext) =
                 payWeight = Some 50
                 sorobanUploadWeight = Some 5
                 sorobanInvokeWeight = Some 45
+
+                // TODO: Docs
+                minSorobanPercentSuccess = Some 80
         }
 
     // TODO Need to pass a function to maxTPSTest that sets up the blended mode
