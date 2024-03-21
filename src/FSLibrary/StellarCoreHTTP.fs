@@ -49,7 +49,7 @@ type LoadGenMode =
     | CreateSorobanUpgrade
     | SorobanInvokeSetup
     | SorobanInvoke
-    | BlendClassicSoroban
+    | MixedClassicSoroban
 
     override self.ToString() =
         match self with
@@ -61,7 +61,7 @@ type LoadGenMode =
         | CreateSorobanUpgrade -> "create_upgrade"
         | SorobanInvokeSetup -> "soroban_invoke_setup"
         | SorobanInvoke -> "soroban_invoke"
-        | BlendClassicSoroban -> "blend_classic_soroban"
+        | MixedClassicSoroban -> "mixed_classic_soroban"
 
 type LoadGen =
     { mode: LoadGenMode
