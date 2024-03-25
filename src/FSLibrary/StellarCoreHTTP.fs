@@ -84,13 +84,8 @@ type LoadGen =
       instances: int option
       dataEntriesIntervals: int list
       dataEntriesWeights: int list
-      // TODO: I think this is wrong. It's kilobytes TOTAL, not per data entry.
-      // Make a note in the PR about this along side the fix just in case I'm
-      // wrong.
-      // TODO: Rename to something like ioBytesIntervals? Or
-      // totalIoBytesIntervals?
-      totalBytesIntervals: int list
-      totalBytesWeights: int list
+      kiloBytesPerDataEntryIntervals: int list
+      kiloBytesPerDataEntryWeights: int list
       txSizeBytesIntervals: int list
       txSizeBytesWeights: int list
       instructionsIntervals: int64 list
@@ -151,8 +146,8 @@ type LoadGen =
           @ listParam "wasmBytesWeights" self.wasmBytesWeights
           @ listParam "dataentriesintervals" self.dataEntriesIntervals
           @ listParam "dataentriesweights" self.dataEntriesWeights
-          @ listParam "bytesintervals" self.totalBytesIntervals
-          @ listParam "bytesweights" self.totalBytesWeights
+          @ listParam "kilobytesintervals" self.kiloBytesPerDataEntryIntervals
+          @ listParam "kilobytesweights" self.kiloBytesPerDataEntryWeights
           @ listParam "txsizeintervals" self.txSizeBytesIntervals
           @ listParam "txsizeweights" self.txSizeBytesWeights
           @ listParam "cpuintervals" self.instructionsIntervals
@@ -211,8 +206,8 @@ type LoadGen =
           instances = None
           dataEntriesIntervals = []
           dataEntriesWeights = []
-          totalBytesIntervals = []
-          totalBytesWeights = []
+          kiloBytesPerDataEntryIntervals = []
+          kiloBytesPerDataEntryWeights = []
           txSizeBytesIntervals = []
           txSizeBytesWeights = []
           instructionsIntervals = []
@@ -310,8 +305,8 @@ type MissionContext with
               skiplowfeetxs = self.skipLowFeeTxs
               dataEntriesIntervals = [0 ; 11]
               dataEntriesWeights = [1]
-              totalBytesIntervals = [1 ; 5 * 1024]
-              totalBytesWeights = [1]
+              kiloBytesPerDataEntryIntervals = [1 ; 6]
+              kiloBytesPerDataEntryWeights = [1]
               txSizeBytesIntervals = [0 ; 1001]
               txSizeBytesWeights = [1]
               instructionsIntervals = [0L ; 5000001L]
