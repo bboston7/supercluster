@@ -647,7 +647,8 @@ let StableApproximateTier1CoreSets (image: string) (flatQuorum: bool) : CoreSet 
                     //  ("lo", [ Ashburn; Bengaluru; Falkenstein; Helsinki; Singapore ])
                     //  ("sp", [ CouncilBluffs; Frankfurt; Singapore ])
                      ("sdf", [ Ashburn; Ashburn; Ashburn ])
-                     ("wx", [ CouncilBluffs; Purfleet; Singapore ]) ]
+                     //("wx", [ CouncilBluffs; Purfleet; Singapore ]) ]
+        ]
 
     let allOrgPairs = Map.toList allOrgs
     let orgKeys _ nodes = List.map (fun _ -> KeyPair.Random()) nodes

@@ -40,7 +40,7 @@ let maxTPSTest
         false
         (fun (formation: StellarFormation) ->
 
-            let numAccounts = 3000 //30000
+            let numAccounts = 30000
 
             let upgradeMaxTxSetSize (coreSets: CoreSet list) (rate: int) =
                 // Set max tx size to 10x the rate -- at 5x we overflow the transaction queue too often.
@@ -93,7 +93,11 @@ let maxTPSTest
                         let loadGen =
                             { baseLoadGen with
                                   accounts = numAccounts
-                                  txs = middle * 1000
+                                  // TODO: Remove the `/5`. Also double check
+                                  // that all values have been properly raised
+                                  // back up. ALSO check in the `max-tps-mixed`
+                                  // branch
+                                  txs = middle * 1000 / 5
                                   txrate = middle }
 
                         formation.RunMultiLoadgen tier1 loadGen
