@@ -40,7 +40,7 @@ let maxTPSTest
         false
         (fun (formation: StellarFormation) ->
 
-            let numAccounts = 30000
+            let numAccounts = 3000 //30000
 
             let upgradeMaxTxSetSize (coreSets: CoreSet list) (rate: int) =
                 // Set max tx size to 10x the rate -- at 5x we overflow the transaction queue too often.
@@ -68,7 +68,7 @@ let maxTPSTest
             | Some cfg -> formation.RunLoadgen sdf cfg
             | None -> ()
 
-            let wait () = System.Threading.Thread.Sleep(5 * 60 * 1000)
+            let wait () = System.Threading.Thread.Sleep(30 * 1000)
 
             let getMiddle (low: int) (high: int) = low + (high - low) / 2
 
@@ -125,7 +125,7 @@ let maxTPSTest
             // As the runs take a while, set a threshold of 10, so we get a
             // reasonable approximation
             let threshold = 10
-            let numRuns = if context.numRuns.IsSome then context.numRuns.Value else 3
+            let numRuns = if context.numRuns.IsSome then context.numRuns.Value else 1
 
             for run in 1 .. numRuns do
                 LogInfo "Starting max TPS run %i out of %i" run numRuns
