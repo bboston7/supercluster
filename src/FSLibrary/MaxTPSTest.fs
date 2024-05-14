@@ -8,12 +8,73 @@ module MaxTPSTest
 
 open Logging
 open StellarCoreHTTP
+open StellarCorePeer
 open StellarCoreSet
 open StellarFormation
 open StellarMissionContext
 open StellarNetworkData
 open StellarStatefulSets
 open StellarSupercluster
+
+// Get the maximum value from a distribution
+let private maxDistributionValue (distribution: (int * int) list) =
+    fst (List.maxBy fst distribution)
+
+// Upgrade max tx size to 2x the maximum possible from the distributions in
+// `context`
+let private upgradeSorobanTxLimits (context: MissionContext) (formation: StellarFormation) (coreSetList: CoreSet list)  =
+    formation.SetupUpgradeContract coreSetList.Head
+
+    let multiplier = 2
+    let instructions = int64 ((maxDistributionValue context.instructionsDistribution) * multiplier)
+    let txBytes = (maxDistributionValue context.totalKiloBytesDistribution) * multiplier * 1024
+    let entries = (maxDistributionValue context.dataEntriesDistribution) * multiplier
+
+    formation.DeployUpgradeEntriesAndArm
+        coreSetList
+        { LoadGen.GetDefault() with
+              mode = CreateSorobanUpgrade
+              txMaxInstructions = Some instructions
+              txMaxReadBytes = Some txBytes
+              txMaxWriteBytes = Some txBytes
+              txMaxReadLedgerEntries = Some entries
+              txMaxWriteLedgerEntries = Some entries
+              // TODO: txMaxSizeBytes causes problems
+              // txMaxSizeBytes = Some (maxDistributionValue context.txSizeBytesDistribution * multiplier)
+              maxContractSizeBytes = Some (maxDistributionValue context.wasmBytesDistribution * multiplier)
+              // TODO: What about the rest? (txMemoryLimit, maxContract*)
+        }
+        (System.DateTime.UtcNow)
+
+    // TODO: Re-enable vv
+    let peer = formation.NetworkCfg.GetPeer coreSetList.Head 0
+    peer.WaitForTxMaxInstructions instructions |> ignore
+
+let private upgradeSorobanLedgerLimits (context: MissionContext) (formation: StellarFormation) (coreSetList: CoreSet list) (txrate : int) =
+    formation.SetupUpgradeContract coreSetList.Head
+
+    let multiplier = txrate * 5 * 2
+    let instructions = int64 ((maxDistributionValue context.instructionsDistribution) * multiplier)
+    let maxBytes = (maxDistributionValue context.totalKiloBytesDistribution) * multiplier * 1024
+    let entries = (maxDistributionValue context.dataEntriesDistribution) * multiplier
+
+    formation.DeployUpgradeEntriesAndArm
+        coreSetList
+        { LoadGen.GetDefault() with
+                mode = CreateSorobanUpgrade
+                ledgerMaxInstructions = Some instructions
+                ledgerMaxReadBytes = Some maxBytes
+                ledgerMaxWriteBytes = Some maxBytes
+                ledgerMaxTxCount = Some multiplier
+                ledgerMaxReadLedgerEntries = Some entries
+                ledgerMaxWriteLedgerEntries = Some entries
+                ledgerMaxTransactionsSizeBytes = Some (maxDistributionValue context.txSizeBytesDistribution * multiplier)
+        }
+        (System.DateTime.UtcNow)
+
+    let peer = formation.NetworkCfg.GetPeer coreSetList.Head 0
+    peer.WaitForLedgerMaxInstructions instructions |> ignore
+
 
 let maxTPSTest
     (context: MissionContext)
@@ -58,10 +119,16 @@ let maxTPSTest
             upgradeMaxTxSetSize allNodes 10000
             formation.RunLoadgen sdf { context.GenerateAccountCreationLoad with accounts = numAccounts }
 
-            // Upgrade limits (if requested)
-            if increaseSorobanLimits then
-                formation.UpgradeSorobanLedgerLimitsWithMultiplier allNodes 100000
-                formation.UpgradeSorobanTxLimitsWithMultiplier allNodes 1000
+            // // Upgrade limits (if requested)
+            // if increaseSorobanLimits then
+            //     // TODO: Remove
+            //     // formation.UpgradeSorobanLedgerLimitsWithMultiplier allNodes 100000
+            //     // formation.UpgradeSorobanTxLimitsWithMultiplier allNodes 1000
+            //     upgradeSorobanTxLimits context formation allNodes
+            //     failwith "success?"
+
+            // TODO: Docs
+            let mutable upgradedTxLimits = false
 
             // Perform setup (if requested)
             match setupCfg with
@@ -86,6 +153,13 @@ let maxTPSTest
 
                     formation.clearMetrics allNodes
                     upgradeMaxTxSetSize allNodes middle
+
+                    if increaseSorobanLimits then
+                        upgradeSorobanLedgerLimits context formation allNodes middle
+                        if not upgradedTxLimits then
+                            upgradedTxLimits <- true
+                            upgradeSorobanTxLimits context formation allNodes
+                    failwith "success!"
 
                     try
                         LogInfo "Run started at tx rate %i" middle
