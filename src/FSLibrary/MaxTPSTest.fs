@@ -39,8 +39,11 @@ let private upgradeSorobanTxLimits (context: MissionContext) (formation: Stellar
               txMaxWriteBytes = Some txBytes
               txMaxReadLedgerEntries = Some entries
               txMaxWriteLedgerEntries = Some entries
-              // TODO: txMaxSizeBytes causes problems
-              // txMaxSizeBytes = Some (maxDistributionValue context.txSizeBytesDistribution * multiplier)
+              // TODO: MIGHT need to adjust ledger tx size per block limit to
+              // take into account this theoretical max tx size
+              // NOTE: `txMaxSizeBytes` must be at least 10,000 bytes or
+              // stellar-core will reject the upgrade
+              txMaxSizeBytes = Some (max (maxDistributionValue context.txSizeBytesDistribution * multiplier) 10000)
               maxContractSizeBytes = Some (maxDistributionValue context.wasmBytesDistribution * multiplier)
               // TODO: What about the rest? (txMemoryLimit, maxContract*)
         }
@@ -159,7 +162,6 @@ let maxTPSTest
                         if not upgradedTxLimits then
                             upgradedTxLimits <- true
                             upgradeSorobanTxLimits context formation allNodes
-                    failwith "success!"
 
                     try
                         LogInfo "Run started at tx rate %i" middle
