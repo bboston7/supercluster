@@ -17,12 +17,11 @@ open StellarStatefulSets
 open StellarSupercluster
 
 // Get the maximum value from a distribution
-let private maxDistributionValue (distribution: (int * int) list) =
-    fst (List.maxBy fst distribution)
+let private maxDistributionValue (distribution: (int * int) list) = fst (List.maxBy fst distribution)
 
 // Upgrade max tx size to 2x the maximum possible from the distributions in
 // `context`
-let private upgradeSorobanTxLimits (context: MissionContext) (formation: StellarFormation) (coreSetList: CoreSet list)  =
+let private upgradeSorobanTxLimits (context: MissionContext) (formation: StellarFormation) (coreSetList: CoreSet list) =
     formation.SetupUpgradeContract coreSetList.Head
 
     let multiplier = 2
@@ -38,26 +37,34 @@ let private upgradeSorobanTxLimits (context: MissionContext) (formation: Stellar
               mode = CreateSorobanUpgrade
               txMaxInstructions = Some instructions
               txMaxReadBytes = Some txBytes
-              txMaxWriteBytes = Some (max txBytes wasmBytes)
+              txMaxWriteBytes = Some(max txBytes wasmBytes)
               txMaxReadLedgerEntries = Some entries
               txMaxWriteLedgerEntries = Some entries
-              txMaxSizeBytes = Some (max txSizeBytes wasmBytes)
-              maxContractSizeBytes = Some (maxDistributionValue context.wasmBytesDistribution * multiplier)
+              txMaxSizeBytes = Some(max txSizeBytes wasmBytes)
+              maxContractSizeBytes = Some(maxDistributionValue context.wasmBytesDistribution * multiplier)
               // Memory limit must be reasonably high
-              txMemoryLimit = Some 200000000
-        }
+              txMemoryLimit = Some 200000000 }
         (System.DateTime.UtcNow)
 
     let peer = formation.NetworkCfg.GetPeer coreSetList.Head 0
     peer.WaitForTxMaxInstructions instructions |> ignore
 
-let private upgradeSorobanLedgerLimits (context: MissionContext) (formation: StellarFormation) (coreSetList: CoreSet list) (txrate : int) =
+let private upgradeSorobanLedgerLimits
+    (context: MissionContext)
+    (formation: StellarFormation)
+    (coreSetList: CoreSet list)
+    (txrate: int)
+    =
     formation.SetupUpgradeContract coreSetList.Head
 
     // Multiply txrate by expected ledger close time (5 seconds), then by some
     // factor to add some headroom (4x) to get multiplier for ledger limits
     let multiplier = txrate * 5 * 4
-    let instructions = (int64 (maxDistributionValue context.instructionsDistribution)) * (int64 multiplier)
+
+    let instructions =
+        (int64 (maxDistributionValue context.instructionsDistribution))
+        * (int64 multiplier)
+
     let txsBytes = (maxDistributionValue context.totalKiloBytesDistribution) * multiplier * 1024
     let entries = (maxDistributionValue context.dataEntriesDistribution) * multiplier
     let txSizeBytes = (maxDistributionValue context.txSizeBytesDistribution) * multiplier
@@ -66,15 +73,14 @@ let private upgradeSorobanLedgerLimits (context: MissionContext) (formation: Ste
     formation.DeployUpgradeEntriesAndArm
         coreSetList
         { LoadGen.GetDefault() with
-                mode = CreateSorobanUpgrade
-                ledgerMaxInstructions = Some instructions
-                ledgerMaxReadBytes = Some txsBytes
-                ledgerMaxWriteBytes = Some (max txsBytes wasmBytes)
-                ledgerMaxTxCount = Some multiplier
-                ledgerMaxReadLedgerEntries = Some entries
-                ledgerMaxWriteLedgerEntries = Some entries
-                ledgerMaxTransactionsSizeBytes = Some (max txSizeBytes wasmBytes)
-        }
+              mode = CreateSorobanUpgrade
+              ledgerMaxInstructions = Some instructions
+              ledgerMaxReadBytes = Some txsBytes
+              ledgerMaxWriteBytes = Some(max txsBytes wasmBytes)
+              ledgerMaxTxCount = Some multiplier
+              ledgerMaxReadLedgerEntries = Some entries
+              ledgerMaxWriteLedgerEntries = Some entries
+              ledgerMaxTransactionsSizeBytes = Some(max txSizeBytes wasmBytes) }
         (System.DateTime.UtcNow)
 
     let peer = formation.NetworkCfg.GetPeer coreSetList.Head 0
@@ -153,6 +159,7 @@ let maxTPSTest
 
                     if increaseSorobanLimits then
                         upgradeSorobanLedgerLimits context formation allNodes middle
+
                         if not upgradedTxLimits then
                             upgradedTxLimits <- true
                             upgradeSorobanTxLimits context formation allNodes
