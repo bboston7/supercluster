@@ -48,6 +48,8 @@ let private upgradeSorobanTxLimits (context: MissionContext) (formation: Stellar
               // stellar-core will reject the upgrade
               txMaxSizeBytes = Some (max txSizeBytes wasmBytes)
               maxContractSizeBytes = Some (maxDistributionValue context.wasmBytesDistribution * multiplier)
+              // Memory limit must be reasonably high
+              txMemoryLimit = Some 200000000
               // TODO: What about the rest? (txMemoryLimit, maxContract*)
         }
         (System.DateTime.UtcNow)
