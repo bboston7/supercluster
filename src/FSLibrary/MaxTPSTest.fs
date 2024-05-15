@@ -41,20 +41,15 @@ let private upgradeSorobanTxLimits (context: MissionContext) (formation: Stellar
               txMaxWriteBytes = Some (max txBytes wasmBytes)
               txMaxReadLedgerEntries = Some entries
               txMaxWriteLedgerEntries = Some entries
-              // TODO: MIGHT need to adjust ledger tx size per block limit to
-              // take into account this theoretical max tx size
-              // TODO: Also might need to adjust this to allow for upload txs
               // NOTE: `txMaxSizeBytes` must be at least 10,000 bytes or
               // stellar-core will reject the upgrade
               txMaxSizeBytes = Some (max txSizeBytes wasmBytes)
               maxContractSizeBytes = Some (maxDistributionValue context.wasmBytesDistribution * multiplier)
               // Memory limit must be reasonably high
               txMemoryLimit = Some 200000000
-              // TODO: What about the rest? (txMemoryLimit, maxContract*)
         }
         (System.DateTime.UtcNow)
 
-    // TODO: Re-enable vv
     let peer = formation.NetworkCfg.GetPeer coreSetList.Head 0
     peer.WaitForTxMaxInstructions instructions |> ignore
 
@@ -129,15 +124,7 @@ let maxTPSTest
             upgradeMaxTxSetSize allNodes 10000
             formation.RunLoadgen sdf { context.GenerateAccountCreationLoad with accounts = numAccounts }
 
-            // // Upgrade limits (if requested)
-            // if increaseSorobanLimits then
-            //     // TODO: Remove
-            //     // formation.UpgradeSorobanLedgerLimitsWithMultiplier allNodes 100000
-            //     // formation.UpgradeSorobanTxLimitsWithMultiplier allNodes 1000
-            //     upgradeSorobanTxLimits context formation allNodes
-            //     failwith "success?"
-
-            // TODO: Docs
+            // Whether or not tx limits have been upgraded yet
             let mutable upgradedTxLimits = false
 
             // Perform setup (if requested)
@@ -176,11 +163,8 @@ let maxTPSTest
                         let loadGen =
                             { baseLoadGen with
                                   accounts = numAccounts
-                                  // TODO: Remove the `/5`. Also double check
-                                  // that all values have been properly raised
-                                  // back up. ALSO check in the `max-tps-mixed`
-                                  // branch
-                                  txs = middle * 1000 / 5
+                                  // Roughly 15 min of load
+                                  txs = middle * 1000
                                   txrate = middle }
 
                         formation.RunMultiLoadgen tier1 loadGen

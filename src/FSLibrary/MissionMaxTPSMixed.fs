@@ -17,8 +17,8 @@ let maxTPSMixed (baseContext: MissionContext) =
         { baseContext with
               coreResources = SimulatePubnetTier1PerfResources
               installNetworkDelay = Some(baseContext.installNetworkDelay |> Option.defaultValue true)
-              // TODO: Explain why
-              // Simulate apply duration using same distribution as the SimulatePubnet mission
+              // Simulate apply duration using same distribution as
+              // `MissionSimulatePubnet`
               simulateApplyDuration = Some(baseContext.simulateApplyDuration |> Option.defaultValue pubnetApplyDuration)
               simulateApplyWeight = Some(baseContext.simulateApplyWeight |> Option.defaultValue pubnetApplyWeight)
               enableTailLogging = false
@@ -55,9 +55,13 @@ let maxTPSMixed (baseContext: MissionContext) =
               sorobanUploadWeight = Some(baseContext.sorobanUploadWeight |> Option.defaultValue 5)
               sorobanInvokeWeight = Some(baseContext.sorobanInvokeWeight |> Option.defaultValue 45)
 
-              // Require 80% of Soroban transactions to successfully apply by
-              // default
-              // TODO: Explain why this is 0% and update comment above
+              // This mission does not put any requirements on Soroban
+              // transaction success rates. This is because loadgen is not able
+              // to preflight Soroban transactions, and the estimates built in
+              // to loadgen struggle to accurately set transaction resources
+              // when the distributions are wide like this. The test accounts
+              // for potentially lower load during apply time by setting
+              // `simulateApplyDuration` to non-zero values.
               minSorobanPercentSuccess = Some(baseContext.minSorobanPercentSuccess |> Option.defaultValue 0) }
 
     let invokeSetupCfg = { baseLoadGen with mode = SorobanInvokeSetup }
