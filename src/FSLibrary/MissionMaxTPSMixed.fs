@@ -61,7 +61,7 @@ let maxTPSMixed (baseContext: MissionContext) =
               // to loadgen struggle to accurately set transaction resources
               // when the distributions are wide like this. The test accounts
               // for potentially lower load during apply time by setting
-              // `simulateApplyDuration` to non-zero values.
+              // `simulateApplyDuration` to values observed on pubnet.
               minSorobanPercentSuccess = Some(baseContext.minSorobanPercentSuccess |> Option.defaultValue 0) }
 
     let invokeSetupCfg = { baseLoadGen with mode = SorobanInvokeSetup }

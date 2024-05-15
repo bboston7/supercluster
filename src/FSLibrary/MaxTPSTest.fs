@@ -41,8 +41,6 @@ let private upgradeSorobanTxLimits (context: MissionContext) (formation: Stellar
               txMaxWriteBytes = Some (max txBytes wasmBytes)
               txMaxReadLedgerEntries = Some entries
               txMaxWriteLedgerEntries = Some entries
-              // NOTE: `txMaxSizeBytes` must be at least 10,000 bytes or
-              // stellar-core will reject the upgrade
               txMaxSizeBytes = Some (max txSizeBytes wasmBytes)
               maxContractSizeBytes = Some (maxDistributionValue context.wasmBytesDistribution * multiplier)
               // Memory limit must be reasonably high
@@ -56,6 +54,8 @@ let private upgradeSorobanTxLimits (context: MissionContext) (formation: Stellar
 let private upgradeSorobanLedgerLimits (context: MissionContext) (formation: StellarFormation) (coreSetList: CoreSet list) (txrate : int) =
     formation.SetupUpgradeContract coreSetList.Head
 
+    // Multiply txrate by expected ledger close time (5 seconds), then by some
+    // factor to add some headroom (4x) to get multiplier for ledger limits
     let multiplier = txrate * 5 * 4
     let instructions = (int64 (maxDistributionValue context.instructionsDistribution)) * (int64 multiplier)
     let txsBytes = (maxDistributionValue context.totalKiloBytesDistribution) * multiplier * 1024
@@ -132,7 +132,7 @@ let maxTPSTest
             | Some cfg -> formation.RunLoadgen sdf cfg
             | None -> ()
 
-            let wait () = System.Threading.Thread.Sleep(30 * 1000)
+            let wait () = System.Threading.Thread.Sleep(5 * 60 * 1000)
 
             let getMiddle (low: int) (high: int) = low + (high - low) / 2
 
@@ -196,7 +196,7 @@ let maxTPSTest
             // As the runs take a while, set a threshold of 10, so we get a
             // reasonable approximation
             let threshold = 10
-            let numRuns = if context.numRuns.IsSome then context.numRuns.Value else 1
+            let numRuns = if context.numRuns.IsSome then context.numRuns.Value else 3
 
             for run in 1 .. numRuns do
                 LogInfo "Starting max TPS run %i out of %i" run numRuns
