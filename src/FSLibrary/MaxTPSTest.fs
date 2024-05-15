@@ -61,8 +61,8 @@ let private upgradeSorobanTxLimits (context: MissionContext) (formation: Stellar
 let private upgradeSorobanLedgerLimits (context: MissionContext) (formation: StellarFormation) (coreSetList: CoreSet list) (txrate : int) =
     formation.SetupUpgradeContract coreSetList.Head
 
-    let multiplier = txrate * 5 * 2
-    let instructions = int64 ((maxDistributionValue context.instructionsDistribution) * multiplier)
+    let multiplier = txrate * 5 * 4
+    let instructions = (int64 (maxDistributionValue context.instructionsDistribution)) * (int64 multiplier)
     let txsBytes = (maxDistributionValue context.totalKiloBytesDistribution) * multiplier * 1024
     let entries = (maxDistributionValue context.dataEntriesDistribution) * multiplier
     let txSizeBytes = (maxDistributionValue context.txSizeBytesDistribution) * multiplier
