@@ -29,6 +29,7 @@ let private upgradeSorobanTxLimits (context: MissionContext) (formation: Stellar
     let instructions = int64 ((maxDistributionValue context.instructionsDistribution) * multiplier)
     let txBytes = (maxDistributionValue context.totalKiloBytesDistribution) * multiplier * 1024
     let entries = (maxDistributionValue context.dataEntriesDistribution) * multiplier
+    let wasmBytes = (maxDistributionValue context.wasmBytesDistribution) * multiplier
 
     formation.DeployUpgradeEntriesAndArm
         coreSetList
@@ -36,11 +37,12 @@ let private upgradeSorobanTxLimits (context: MissionContext) (formation: Stellar
               mode = CreateSorobanUpgrade
               txMaxInstructions = Some instructions
               txMaxReadBytes = Some txBytes
-              txMaxWriteBytes = Some txBytes
+              txMaxWriteBytes = Some (max txBytes wasmBytes)
               txMaxReadLedgerEntries = Some entries
               txMaxWriteLedgerEntries = Some entries
               // TODO: MIGHT need to adjust ledger tx size per block limit to
               // take into account this theoretical max tx size
+              // TODO: Also might need to adjust this to allow for upload txs
               // NOTE: `txMaxSizeBytes` must be at least 10,000 bytes or
               // stellar-core will reject the upgrade
               txMaxSizeBytes = Some (max (maxDistributionValue context.txSizeBytesDistribution * multiplier) 10000)
@@ -58,16 +60,17 @@ let private upgradeSorobanLedgerLimits (context: MissionContext) (formation: Ste
 
     let multiplier = txrate * 5 * 2
     let instructions = int64 ((maxDistributionValue context.instructionsDistribution) * multiplier)
-    let maxBytes = (maxDistributionValue context.totalKiloBytesDistribution) * multiplier * 1024
+    let txsBytes = (maxDistributionValue context.totalKiloBytesDistribution) * multiplier * 1024
     let entries = (maxDistributionValue context.dataEntriesDistribution) * multiplier
+    let wasmBytes = (maxDistributionValue context.wasmBytesDistribution) * multiplier
 
     formation.DeployUpgradeEntriesAndArm
         coreSetList
         { LoadGen.GetDefault() with
                 mode = CreateSorobanUpgrade
                 ledgerMaxInstructions = Some instructions
-                ledgerMaxReadBytes = Some maxBytes
-                ledgerMaxWriteBytes = Some maxBytes
+                ledgerMaxReadBytes = Some txsBytes
+                ledgerMaxWriteBytes = Some (max txsBytes wasmBytes)
                 ledgerMaxTxCount = Some multiplier
                 ledgerMaxReadLedgerEntries = Some entries
                 ledgerMaxWriteLedgerEntries = Some entries
