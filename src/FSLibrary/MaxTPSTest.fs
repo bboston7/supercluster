@@ -29,6 +29,7 @@ let private upgradeSorobanTxLimits (context: MissionContext) (formation: Stellar
     let instructions = int64 ((maxDistributionValue context.instructionsDistribution) * multiplier)
     let txBytes = (maxDistributionValue context.totalKiloBytesDistribution) * multiplier * 1024
     let entries = (maxDistributionValue context.dataEntriesDistribution) * multiplier
+    let txSizeBytes = (maxDistributionValue context.txSizeBytesDistribution) * multiplier
     let wasmBytes = (maxDistributionValue context.wasmBytesDistribution) * multiplier
 
     formation.DeployUpgradeEntriesAndArm
@@ -45,7 +46,7 @@ let private upgradeSorobanTxLimits (context: MissionContext) (formation: Stellar
               // TODO: Also might need to adjust this to allow for upload txs
               // NOTE: `txMaxSizeBytes` must be at least 10,000 bytes or
               // stellar-core will reject the upgrade
-              txMaxSizeBytes = Some (max (maxDistributionValue context.txSizeBytesDistribution * multiplier) 10000)
+              txMaxSizeBytes = Some (max txSizeBytes wasmBytes)
               maxContractSizeBytes = Some (maxDistributionValue context.wasmBytesDistribution * multiplier)
               // TODO: What about the rest? (txMemoryLimit, maxContract*)
         }
@@ -62,6 +63,7 @@ let private upgradeSorobanLedgerLimits (context: MissionContext) (formation: Ste
     let instructions = int64 ((maxDistributionValue context.instructionsDistribution) * multiplier)
     let txsBytes = (maxDistributionValue context.totalKiloBytesDistribution) * multiplier * 1024
     let entries = (maxDistributionValue context.dataEntriesDistribution) * multiplier
+    let txSizeBytes = (maxDistributionValue context.txSizeBytesDistribution) * multiplier
     let wasmBytes = (maxDistributionValue context.wasmBytesDistribution) * multiplier
 
     formation.DeployUpgradeEntriesAndArm
@@ -74,7 +76,7 @@ let private upgradeSorobanLedgerLimits (context: MissionContext) (formation: Ste
                 ledgerMaxTxCount = Some multiplier
                 ledgerMaxReadLedgerEntries = Some entries
                 ledgerMaxWriteLedgerEntries = Some entries
-                ledgerMaxTransactionsSizeBytes = Some (maxDistributionValue context.txSizeBytesDistribution * multiplier)
+                ledgerMaxTransactionsSizeBytes = Some (max txSizeBytes wasmBytes)
         }
         (System.DateTime.UtcNow)
 
