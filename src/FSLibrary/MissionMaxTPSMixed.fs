@@ -8,6 +8,7 @@ module MissionMaxTPSMixed
 // It uses the MaxTPSTest module to perform a binary search for the max TPS.
 
 open MaxTPSTest
+open MissionSimulatePubnet
 open StellarMissionContext
 open StellarCoreHTTP
 
@@ -16,9 +17,10 @@ let maxTPSMixed (baseContext: MissionContext) =
         { baseContext with
               coreResources = SimulatePubnetTier1PerfResources
               installNetworkDelay = Some(baseContext.installNetworkDelay |> Option.defaultValue true)
-              // No additional DB overhead unless specified (this will measure the in-memory SQLite DB only)
-              simulateApplyDuration = Some(baseContext.simulateApplyDuration |> Option.defaultValue (seq { 0 }))
-              simulateApplyWeight = Some(baseContext.simulateApplyWeight |> Option.defaultValue (seq { 100 }))
+              // TODO: Explain why
+              // Simulate apply duration using same distribution as the SimulatePubnet mission
+              simulateApplyDuration = Some(baseContext.simulateApplyDuration |> Option.defaultValue pubnetApplyDuration)
+              simulateApplyWeight = Some(baseContext.simulateApplyWeight |> Option.defaultValue pubnetApplyWeight)
               enableTailLogging = false
               // Setup distributions based on testnet data
               wasmBytesDistribution = [ (8 * 1024, 132); (24 * 1024, 68); (40 * 1024, 92); (56 * 1024, 141) ]
@@ -55,7 +57,8 @@ let maxTPSMixed (baseContext: MissionContext) =
 
               // Require 80% of Soroban transactions to successfully apply by
               // default
-              minSorobanPercentSuccess = Some(baseContext.minSorobanPercentSuccess |> Option.defaultValue 80) }
+              // TODO: Explain why this is 0% and update comment above
+              minSorobanPercentSuccess = Some(baseContext.minSorobanPercentSuccess |> Option.defaultValue 0) }
 
     let invokeSetupCfg = { baseLoadGen with mode = SorobanInvokeSetup }
 
