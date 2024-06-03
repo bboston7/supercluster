@@ -116,7 +116,10 @@ let maxTPSTest
 
             let upgradeMaxTxSetSize (coreSets: CoreSet list) (rate: int) =
                 // Set max tx size to 10x the rate -- at 5x we overflow the transaction queue too often.
-                formation.UpgradeMaxTxSetSize coreSets (10 * rate)
+                // TODO: Change based on whether or not this is blended mode? Default before was 10x rate. Also update above comment ^^
+                formation.UpgradeMaxTxSetSize coreSets (20 * rate)
+                // TODO: Probably only do this for soroban modes
+                formation.UpgradeSorobanMaxTxSetSize coreSets (40 * rate)
 
             // Setup overlay connections first before manually closing
             // ledger, which kick off consensus
