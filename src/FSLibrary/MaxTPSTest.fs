@@ -250,7 +250,6 @@ let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) (setupCfg: LoadG
                 LogInfo "Starting max TPS run %i out of %i" run numRuns
                 let resultRate = binarySearchWithThreshold context.txRate context.maxTxRate threshold
                 results <- List.append results [ resultRate ]
-                if run < numRuns then wait ()
 
             LogInfo
                 "Final tx rate averaged to %i over %i runs for image %s"
