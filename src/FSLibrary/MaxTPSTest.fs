@@ -182,13 +182,13 @@ let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) (setupCfg: LoadG
 
                 let mutable lowerBound = low
                 let mutable upperBound = high
-                let mutable lastRunFailed = false
+                let mutable lastRunSucceeded = false
                 let mutable finalTxRate = None
 
                 while upperBound - lowerBound > threshold do
                     let middle = getMiddle lowerBound upperBound
 
-                    if lastRunFailed then wait ()
+                    if not lastRunSucceeded then wait ()
 
                     formation.clearMetrics allNodes
                     upgradeMaxTxSetSize allNodes middle
@@ -196,7 +196,7 @@ let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) (setupCfg: LoadG
                     // Only reupload upgrade contract if the last run failed, or
                     // this is the first run. Otherwise this can reuse the old
                     // contract.
-                    upgradeSorobanLedgerLimits context formation allNodes middle (not lastRunFailed)
+                    upgradeSorobanLedgerLimits context formation allNodes middle (not lastRunSucceeded)
                     if not upgradedSorobanTxLimits then
                         // Soroban tx limits only need to be upgraded once. Must
                         // be done after upgrading ledger limits.
@@ -223,12 +223,12 @@ let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) (setupCfg: LoadG
                         lowerBound <- middle
                         finalTxRate <- Some middle
                         LogInfo "Run succeeded at tx rate %i" middle
-                        lastRunFailed <- false
+                        lastRunSucceeded <- true
 
                     with e ->
                         LogInfo "Run failed at tx rate %i: %s" middle e.Message
                         upperBound <- middle
-                        lastRunFailed <- true
+                        lastRunSucceeded <- false
 
                 if finalTxRate.IsSome then
                     LogInfo "Found max tx rate %i" finalTxRate.Value
