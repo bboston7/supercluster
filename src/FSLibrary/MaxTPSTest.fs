@@ -86,8 +86,9 @@ let private upgradeSorobanLedgerLimits
     (formation: StellarFormation)
     (coreSetList: CoreSet list)
     (txrate: int)
+    (setupUpgrade: bool)
     =
-    formation.SetupUpgradeContract coreSetList.Head
+    if setupUpgrade then formation.SetupUpgradeContract coreSetList.Head
 
     // Multiply txrate by limitMultiplier to get multiplier for ledger limits
     let multiplier = txrate * limitMultiplier
@@ -171,6 +172,8 @@ let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) (setupCfg: LoadG
                     formation.RunLoadgen cs { cfg with accounts = numAccounts; minSorobanPercentSuccess = Some 100 }
             | None -> ()
 
+            let mutable upgradedSorobanTxLimits = false
+
             let wait () = System.Threading.Thread.Sleep(5 * 60 * 1000)
 
             let getMiddle (low: int) (high: int) = low + (high - low) / 2
@@ -179,18 +182,26 @@ let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) (setupCfg: LoadG
 
                 let mutable lowerBound = low
                 let mutable upperBound = high
-                let mutable shouldWait = false
+                let mutable lastRunFailed = false
                 let mutable finalTxRate = None
 
                 while upperBound - lowerBound > threshold do
                     let middle = getMiddle lowerBound upperBound
 
-                    if shouldWait then wait ()
+                    if lastRunFailed then wait ()
 
                     formation.clearMetrics allNodes
                     upgradeMaxTxSetSize allNodes middle
-                    upgradeSorobanLedgerLimits context formation allNodes middle
-                    upgradeSorobanTxLimits context formation allNodes
+                    // Upgrade soroban ledger limits for new target tx rate.
+                    // Only reupload upgrade contract if the last run failed, or
+                    // this is the first run. Otherwise this can reuse the old
+                    // contract.
+                    upgradeSorobanLedgerLimits context formation allNodes middle (not lastRunFailed)
+                    if not upgradedSorobanTxLimits then
+                        // Soroban tx limits only need to be upgraded once. Must
+                        // be done after upgrading ledger limits.
+                        upgradedSorobanTxLimits <- true
+                        upgradeSorobanTxLimits context formation allNodes
 
                     try
                         LogInfo "Run started at tx rate %i" middle
@@ -212,12 +223,12 @@ let maxTPSTest (context: MissionContext) (baseLoadGen: LoadGen) (setupCfg: LoadG
                         lowerBound <- middle
                         finalTxRate <- Some middle
                         LogInfo "Run succeeded at tx rate %i" middle
-                        shouldWait <- false
+                        lastRunFailed <- false
 
                     with e ->
                         LogInfo "Run failed at tx rate %i: %s" middle e.Message
                         upperBound <- middle
-                        shouldWait <- true
+                        lastRunFailed <- true
 
                 if finalTxRate.IsSome then
                     LogInfo "Found max tx rate %i" finalTxRate.Value
