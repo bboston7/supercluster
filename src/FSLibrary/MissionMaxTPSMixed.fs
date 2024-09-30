@@ -29,6 +29,7 @@ let maxTPSMixed (baseContext: MissionContext) =
               // Setup distributions based on testnet data
               wasmBytesDistribution = defaultListValue pubnetWasmBytes baseContext.wasmBytesDistribution
 
+              // TODO: Move this comment vv
               // NOTE: `dataEntriesDistribution` and
               // `totalKiloBytesDistribution` are skewed a bit so that in most
               // cases there are more kilobytes of I/O than data entries. This

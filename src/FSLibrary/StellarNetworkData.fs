@@ -487,6 +487,11 @@ let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMin
         match n.SbGeoData with
         | Some geoData -> { lat = float geoData.Latitude; lon = float geoData.Longitude }
         | None ->
+            // TODO: Is this deterministic enough? With the same inputs we'll
+            // get the same outputs given the same context.randomSeed. However,
+            // if the number of random calls changes then the chosen
+            // geolocations will change. Maybe this should use its own random
+            // object? Or we should pick geolocations based on the pubkey?
             if Array.length geoLocations <> 0 then
                 geoLocations.[random.Next(0, Array.length geoLocations)]
             else
