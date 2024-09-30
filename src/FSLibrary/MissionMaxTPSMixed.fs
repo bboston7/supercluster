@@ -8,6 +8,7 @@ module MissionMaxTPSMixed
 // It uses the MaxTPSTest module to perform a binary search for the max TPS.
 
 open MaxTPSTest
+open PubnetData
 open StellarMissionContext
 open StellarCoreHTTP
 
@@ -23,11 +24,10 @@ let maxTPSMixed (baseContext: MissionContext) =
               coreResources = SimulatePubnetTier1PerfResources
               installNetworkDelay = Some(baseContext.installNetworkDelay |> Option.defaultValue true)
               enableTailLogging = false
+              // TODO: Refactor these distributions out somewhere else where
+              // they can be easily reused
               // Setup distributions based on testnet data
-              wasmBytesDistribution =
-                  defaultListValue
-                      [ (8 * 1024, 132); (24 * 1024, 68); (40 * 1024, 92); (56 * 1024, 141) ]
-                      baseContext.wasmBytesDistribution
+              wasmBytesDistribution = defaultListValue pubnetWasmBytes baseContext.wasmBytesDistribution
 
               // NOTE: `dataEntriesDistribution` and
               // `totalKiloBytesDistribution` are skewed a bit so that in most
@@ -36,18 +36,11 @@ let maxTPSMixed (baseContext: MissionContext) =
               // data entry up (from 0kb to 1kb) and underestimates the
               // resources required for the write. This will be fixed as part of
               // stellar-core issue #4231.
-              dataEntriesDistribution =
-                  defaultListValue [ (2, 380); (9, 42); (15, 5); (21, 2) ] baseContext.dataEntriesDistribution
-              totalKiloBytesDistribution = defaultListValue [ (3, 427); (5, 2) ] baseContext.totalKiloBytesDistribution
+              dataEntriesDistribution = defaultListValue pubnetDataEntries baseContext.dataEntriesDistribution
+              totalKiloBytesDistribution = defaultListValue pubnetTotalKiloBytes baseContext.totalKiloBytesDistribution
 
-              txSizeBytesDistribution =
-                  defaultListValue
-                      [ (200, 37); (400, 6); (600, 1); (800, 4); (1000, 1) ]
-                      baseContext.txSizeBytesDistribution
-              instructionsDistribution =
-                  defaultListValue
-                      [ (12500000, 201); (37500000, 183); (62500000, 34); (87500000, 11) ]
-                      baseContext.instructionsDistribution }
+              txSizeBytesDistribution = defaultListValue pubnetTxSizeBytes baseContext.txSizeBytesDistribution
+              instructionsDistribution = defaultListValue pubnetInstructions baseContext.instructionsDistribution }
 
     let baseLoadGen =
         { LoadGen.GetDefault() with
