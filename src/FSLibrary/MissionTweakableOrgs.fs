@@ -25,11 +25,11 @@ let private defaultListValue value list =
     | [] -> value
     | _ -> list
 
-let simulatePubnet (baseContext: MissionContext) =
+let tweakableOrgs(baseContext: MissionContext) =
     let context =
         { baseContext with
               numAccounts = 30000
-              coreResources = SimulatePubnetResources baseContext.networkSizeLimit
+              coreResources = TweakableOrgsResources
               // When no value is given, use the default values derived from observing the pubnet.
               simulateApplyDuration = Some(baseContext.simulateApplyDuration |> Option.defaultValue pubnetApplyDuration)
               simulateApplyWeight = Some(baseContext.simulateApplyWeight |> Option.defaultValue pubnetApplyWeight)
@@ -52,8 +52,9 @@ let simulatePubnet (baseContext: MissionContext) =
 
     let nonTier1 = List.filter (fun (cs: CoreSet) -> cs.options.tier1 <> Some true) fullCoreSet
 
-    // Transactions per second. ~1000 per ledger
-    let txrate = 200
+    // Transactions per second. ~1000 per ledger. 200 payment TPS and 2 invoke
+    // TPS.
+    let txrate = 202
 
     let loadGen =
         { LoadGen.GetDefault() with
@@ -76,10 +77,10 @@ let simulatePubnet (baseContext: MissionContext) =
               // ~15 minutes of load
               txs = txrate * 60 * 15
 
-              // Blend settings. 95% classic, 5% invoke by default
-              payWeight = Some(baseContext.payWeight |> Option.defaultValue 95)
-              sorobanInvokeWeight = Some(baseContext.sorobanInvokeWeight |> Option.defaultValue 5)
-              sorobanUploadWeight = Some(baseContext.sorobanUploadWeight |> Option.defaultValue 0)
+              // Blend settings. 99% classic, 1% invoke by default
+              payWeight = Some(baseContext.payWeight |> Option.defaultValue pubnetPayWeight)
+              sorobanInvokeWeight = Some(baseContext.sorobanInvokeWeight |> Option.defaultValue pubnetInvokeWeight)
+              sorobanUploadWeight = Some(baseContext.sorobanUploadWeight |> Option.defaultValue pubnetUploadWeight)
 
               // Require a majority of Soroban transactions to succeed.
               minSorobanPercentSuccess = Some(baseContext.minSorobanPercentSuccess |> Option.defaultValue 60) }

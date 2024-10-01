@@ -175,6 +175,11 @@ let AcceptanceTestCoreResourceRequirements : V1ResourceRequirements =
     // RAM required.
     makeResourceRequirements 4000 4096 4000 4096
 
+// TODO: Rename and add docs
+let TweakableOrgsResourceRequirements : V1ResourceRequirements =
+    // TODO: Should burstable amounts be higher?
+    makeResourceRequirements 500 1024 500 1024
+
 let PgContainerVolumeMounts : V1VolumeMount array =
     [| V1VolumeMount(name = CfgVal.dataVolumeName, mountPath = CfgVal.dataVolumePath) |]
 
@@ -333,6 +338,7 @@ let CoreContainerForCommand
         | ParallelCatchupResources -> ParallelCatchupCoreResourceRequirements
         | NonParallelCatchupResources -> NonParallelCatchupCoreResourceRequirements
         | UpgradeResources -> UpgradeCoreResourceRequirements
+        | TweakableOrgsResources -> TweakableOrgsResourceRequirements
 
     V1Container(
         name = containerName,

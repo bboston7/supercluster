@@ -23,6 +23,7 @@ type CoreResources =
     | ParallelCatchupResources
     | NonParallelCatchupResources
     | UpgradeResources
+    | TweakableOrgsResources // TODO: Rename?
 
 type MissionContext =
     { kube: Kubernetes
