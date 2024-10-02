@@ -101,12 +101,20 @@ let tweakableOrgs(baseContext: MissionContext) =
             // Upgrades!
             formation.UpgradeProtocolToLatest tier1
             formation.UpgradeMaxTxSetSize tier1 (txrate * 10)
-            upgradeSorobanLedgerLimits context formation fullCoreSet txrate
-            upgradeSorobanTxLimits context formation fullCoreSet
 
-            formation.RunLoadgen nonTier1.Head context.GenerateAccountCreationLoad
+            let loadGenerator = nonTier1.Head
+            formation.RunLoadgen loadGenerator { context.GenerateAccountCreationLoad with accounts = context.numAccounts }
+            upgradeSorobanLedgerLimits context formation tier1 txrate
+            upgradeSorobanTxLimits context formation tier1
 
-            // TODO: Multi-loadgen?
-            formation.RunLoadgen nonTier1.Head loadGen
+            formation.RunLoadgen loadGenerator { loadGen with
+                                                    mode = SorobanInvokeSetup
+                                                    txrate = 2
+                                                    minSorobanPercentSuccess = Some 100
+                                                    }
+
+            // TODO: Multi-loadgen? If so, I need to perform setup on all of the
+            // load generating nodes (like in MaxTPSTest)
+            formation.RunLoadgen loadGenerator loadGen
             formation.CheckNoErrorsAndPairwiseConsistency()
             formation.EnsureAllNodesInSync fullCoreSet)

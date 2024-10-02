@@ -6,6 +6,8 @@ module PubnetData
 
 // TODO: Docs. Mention when these were updated and how. Mention they are all parts per thousand (at least, the loadgen ones are. Not the apply ones).
 
+// TODO: Pull script into repo
+
 let pubnetApplyDuration =
     seq {
         20
