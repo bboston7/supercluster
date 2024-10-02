@@ -28,9 +28,9 @@ type Tier1PublicKey = JsonProvider<"json-type-samples/sample-keys.json", SampleI
 // When scaling the network, we need to pick
 // the degree of each new node.
 // The following numbers are added here based on pubnet observations/educated guesses.
-let minPeerCountTier1 = 25
+let minPeerCountTier1 = 27
 
-let maxPeerCountTier1 = 81
+let maxPeerCountTier1 = 64
 
 let peerCountTier1 (random: System.Random) : int = random.Next(minPeerCountTier1, maxPeerCountTier1)
 
