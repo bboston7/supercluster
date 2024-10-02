@@ -75,7 +75,8 @@ let tweakableOrgs(baseContext: MissionContext) =
               txrate = txrate
 
               // ~15 minutes of load
-              txs = txrate * 60 * 15
+              // txs = txrate * 60 * 15
+              txs = txrate * 60 // TODO: Revert to 15 minutes of load
 
               // Blend settings. 99% classic, 1% invoke by default
               payWeight = Some(baseContext.payWeight |> Option.defaultValue pubnetPayWeight)

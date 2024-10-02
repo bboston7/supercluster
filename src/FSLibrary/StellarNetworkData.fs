@@ -9,6 +9,7 @@ module StellarNetworkData
 open FSharp.Data
 open StellarCoreSet
 open StellarCoreCfg
+open StellarDotnetSdk
 open StellarMissionContext
 open Logging
 open StellarDotnetSdk.Accounts
@@ -487,15 +488,25 @@ let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMin
         match n.SbGeoData with
         | Some geoData -> { lat = float geoData.Latitude; lon = float geoData.Longitude }
         | None ->
+            // TODO: Explain
+            // TODO: Maybe this hashing strategy should be behind a flag and we
+            // should keep the old random strategy by default?
+            let hash = Util.Hash (System.Text.Encoding.UTF8.GetBytes(n.PublicKey))
+            // Get index by taking first 4 bytes of hash and converting to an
+            // 32-bit unsigned int
+            let idx = System.BitConverter.ToUInt32(hash, 0)
             // TODO: Is this deterministic enough? With the same inputs we'll
             // get the same outputs given the same context.randomSeed. However,
             // if the number of random calls changes then the chosen
             // geolocations will change. Maybe this should use its own random
             // object? Or we should pick geolocations based on the pubkey?
             if Array.length geoLocations <> 0 then
-                geoLocations.[random.Next(0, Array.length geoLocations)]
+                geoLocations.[Checked.int (idx % (Checked.uint32 (Array.length geoLocations)))]
             else
-                locations.[random.Next(0, Array.length locations)]
+                // TODO: Remove i and debug print. Inline vv
+                let i = Checked.int (idx % (Checked.uint32 (Array.length locations)))
+                printfn "Assigning location %d" i |> ignore
+                locations.[i]
 
     let makeCoreSetWithExplicitKeys (hdn: HomeDomainName) (options: CoreSetOptions) (keys: KeyPair array) =
         { name = CoreSetName(hdn.StringName)
