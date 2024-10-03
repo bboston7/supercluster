@@ -28,6 +28,8 @@ let private defaultListValue value list =
 let tweakableOrgs(baseContext: MissionContext) =
     let context =
         { baseContext with
+            // TODO: Need to use `tier1OrgsToAdd` and `tier1OrgSize==3`
+
               numAccounts = 30000
               coreResources = TweakableOrgsResources
               // When no value is given, use the default values derived from observing the pubnet.

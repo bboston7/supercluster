@@ -403,8 +403,6 @@ type MissionOptions
              Required = false)>]
     member self.SimulateApplyWeight = simulateApplyWeight
 
-    // TODO: Need to make sure these added nodes are similar to existing nodes.
-    // Also need to make sure each org has 3 nodes.
     [<Option("tier-1-orgs-to-add",
              HelpText = "The number of tier-1 organizations to add while scaling the network in SimulatePubnet",
              Required = false)>]
@@ -421,7 +419,7 @@ type MissionOptions
     [<Option("network-size-limit",
              HelpText = "The number of nodes to run in SimulatePubnet",
              Required = false,
-             Default = 600)>] // TODO: Might need to bump this up
+             Default = 600)>]
     member self.NetworkSizeLimit = networkSizeLimit
 
     [<Option("pubnet-parallel-catchup-starting-ledger",
