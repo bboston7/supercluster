@@ -8,6 +8,8 @@ module MissionTweakableOrgs
 // The point of this mission is to simulate pubnet as closely as possible,
 // for evaluating the likely effect of a change to core when deployed.
 
+// TODO: Take number of additional orgs as a parameter
+
 open MaxTPSTest
 open PubnetData
 open StellarCoreSet
@@ -54,6 +56,12 @@ let tweakableOrgs(baseContext: MissionContext) =
 
     let nonTier1 = List.filter (fun (cs: CoreSet) -> cs.options.tier1 <> Some true) fullCoreSet
 
+    // Each load generator will generate ~10 TPS, provided there are at least 20
+    // non-tier1 nodes
+    let numLoadGenerators = 20
+    let loadGenerators = List.take (min numLoadGenerators (List.length nonTier1)) nonTier1
+    printfn "Using %d load generators" (List.length loadGenerators)
+
     // Transactions per second. ~1000 per ledger. 200 payment TPS and 2 invoke
     // TPS.
     let txrate = 202
@@ -77,8 +85,7 @@ let tweakableOrgs(baseContext: MissionContext) =
               txrate = txrate
 
               // ~15 minutes of load
-              // txs = txrate * 60 * 15
-              txs = txrate * 60 // TODO: Revert to 15 minutes of load
+              txs = txrate * 60 * 15
 
               // Blend settings. 99% classic, 1% invoke by default
               payWeight = Some(baseContext.payWeight |> Option.defaultValue pubnetPayWeight)
@@ -105,19 +112,18 @@ let tweakableOrgs(baseContext: MissionContext) =
             formation.UpgradeProtocolToLatest tier1
             formation.UpgradeMaxTxSetSize tier1 (txrate * 10)
 
-            let loadGenerator = nonTier1.Head
-            formation.RunLoadgen loadGenerator { context.GenerateAccountCreationLoad with accounts = context.numAccounts }
+            formation.RunLoadgen loadGenerators.Head { context.GenerateAccountCreationLoad with accounts = context.numAccounts }
             upgradeSorobanLedgerLimits context formation tier1 txrate
             upgradeSorobanTxLimits context formation tier1
 
-            formation.RunLoadgen loadGenerator { loadGen with
-                                                    mode = SorobanInvokeSetup
-                                                    txrate = 2
-                                                    minSorobanPercentSuccess = Some 100
-                                                    }
+            for lg in loadGenerators do
+                // Run setup on nodes one at a time
+                formation.RunLoadgen lg { loadGen with
+                                            mode = SorobanInvokeSetup
+                                            txrate = 2
+                                            minSorobanPercentSuccess = Some 100
+                                            }
 
-            // TODO: Multi-loadgen? If so, I need to perform setup on all of the
-            // load generating nodes (like in MaxTPSTest)
-            formation.RunLoadgen loadGenerator loadGen
+            formation.RunMultiLoadgen loadGenerators loadGen
             formation.CheckNoErrorsAndPairwiseConsistency()
             formation.EnsureAllNodesInSync fullCoreSet)
