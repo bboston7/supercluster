@@ -170,30 +170,24 @@ let createAdjacencyMap (edgeList: (string * string) list) : Map<string, Set<stri
 
 
 let private pruneAdjacencyMap (m: Map<string, Set<string>>) : Map<string, Set<string>> =
-    //let maxConnections = 65 // TODO: make configurable
-    let maxConnections = 5 // TODO: make configurable
+    let maxConnections = 65 // TODO: make configurable
+    //let maxConnections = 5 // TODO: make configurable
 
 
     let pruneConnections (acc : Map<string, Set<string>>) (node : string) : Map<string, Set<string>> =
-        printfn "Acc: %A" acc
+        // TODO: Remove vv
+        // printfn "Acc: %A" acc
 
-        let hasMultiplePeers (node : string) =
-            (Set.count (Map.find node acc)) > 1
+        let numPeers (node : string) = Set.count (Map.find node acc)
 
         let peers = Map.find node acc
         if Set.count peers > maxConnections then
-            // Find peers that wouldn't be orphaned by dropping them
-            let safeDrops, unsafeDrops = peers |> Set.partition hasMultiplePeers
+            // Order peers by the number of connections they have
+            let sortedPeers = peers |> Set.toList |> List.sortBy numPeers
 
-            // The number of peers to keep from the safeDrops set is the maximum
-            // number of connections, minus the number of peers we cannot drop
-            let safeDropsToKeep = maxConnections - (Set.count unsafeDrops)
-
-            // Keep `safeDropsToPeers` peers with more than 1 other peer
-            // TODO: This can raise an exception I think if there are a ton of
-            // nodes with only one peer. Should detect and print a more useful
-            // error here.
-            let keep, drop = safeDrops |> Set.toList |> List.splitAt safeDropsToKeep
+            // Drop better connected peers. Keep the worst connected peers so as
+            // to not make them even worse connected.
+            let keep, drop = List.splitAt maxConnections sortedPeers
 
             // TODO: To logs
             printfn "Pruning %s: %d -> %d" node (Set.count peers) (List.length keep)
@@ -201,11 +195,8 @@ let private pruneAdjacencyMap (m: Map<string, Set<string>>) : Map<string, Set<st
             // Remove self from dropped peers' sets
             let acc' = List.fold (fun cur p -> Map.add p (Set.remove node (Map.find p cur)) cur) acc drop
 
-            // Keep everything in the `keep` list, plus any nodes that were unsafe to drop
-            let keep' = Set.union (Set.ofList keep) unsafeDrops
-
-            // Modify map entry for `node` to point to the `keep'` set
-            Map.add node keep' acc'
+            // Modify map entry for `node` to point to the `keep` list
+            Map.add node (Set.ofList keep) acc'
         else
             acc
 
