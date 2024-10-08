@@ -34,7 +34,9 @@ let peerCountTier1 (random: System.Random) : int = random.Next(minPeerCountTier1
 
 let minPeerCountNonTier1 = 1
 
-let maxPeerCountNonTier1 = 71
+// Capped at 65 because we don't want to have too many connections, even though
+// some non-tier1 nodes have more in practice.
+let maxPeerCountNonTier1 = 65
 
 let peerCountNonTier1 (random: System.Random) : int =
     if random.Next(2) = 0 then

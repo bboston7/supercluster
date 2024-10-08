@@ -93,6 +93,7 @@ type NamespaceContent(kube: Kubernetes, apiRateLimit: int, namespaceProperty: st
         s := Set.remove x (!s)
         f x
 
+    // TODO: add docs for this
     member self.Cleanup() =
         cleanSet delService services
         cleanSet delStatefulSet statefulSets
