@@ -155,18 +155,62 @@ let extractEdges (graph: PubnetNode.Root array) : (string * string) array =
 // Given `edgeSet` containing edges (each edge is represented as a pair of strings),
 // create a map whose key is a pubkey and the corresponding value is the list of
 // nodes it's connected to.
-let createAdjacencyMap (edgeList: (string * string) list) : Map<string, string list> =
+let createAdjacencyMap (edgeList: (string * string) list) : Map<string, Set<string>> =
     // So far, each edge connecting a and b is represented by the tuple (a, b) or (b, a).
     // When creating the adjacency list for the given graph,
     // we would like to add b to a's list, and a to b's list.
     // Therefore, for each edge, we swap the vertices and append it to the edge list.
-    let adjacencyList : (string * (string list)) list =
+    let adjacencyList : (string * Set<string>) list =
         edgeList
         |> List.append (List.map (fun (x, y) -> (y, x)) edgeList)
         |> List.groupBy fst
-        |> List.map (fun (x, y) -> (x, List.map snd y))
+        |> List.map (fun (x, y) -> (x, Set.ofList (List.map snd y)))
 
     Map.ofList adjacencyList
+
+
+let private pruneAdjacencyMap (m: Map<string, Set<string>>) : Map<string, Set<string>> =
+    //let maxConnections = 65 // TODO: make configurable
+    let maxConnections = 5 // TODO: make configurable
+
+
+    let pruneConnections (acc : Map<string, Set<string>>) (node : string) : Map<string, Set<string>> =
+        printfn "Acc: %A" acc
+
+        let hasMultiplePeers (node : string) =
+            (Set.count (Map.find node acc)) > 1
+
+        let peers = Map.find node acc
+        if Set.count peers > maxConnections then
+            // Find peers that wouldn't be orphaned by dropping them
+            let safeDrops, unsafeDrops = peers |> Set.partition hasMultiplePeers
+
+            // The number of peers to keep from the safeDrops set is the maximum
+            // number of connections, minus the number of peers we cannot drop
+            let safeDropsToKeep = maxConnections - (Set.count unsafeDrops)
+
+            // Keep `safeDropsToPeers` peers with more than 1 other peer
+            // TODO: This can raise an exception I think if there are a ton of
+            // nodes with only one peer. Should detect and print a more useful
+            // error here.
+            let keep, drop = safeDrops |> Set.toList |> List.splitAt safeDropsToKeep
+
+            // TODO: To logs
+            printfn "Pruning %s: %d -> %d" node (Set.count peers) (List.length keep)
+
+            // Remove self from dropped peers' sets
+            let acc' = List.fold (fun cur p -> Map.add p (Set.remove node (Map.find p cur)) cur) acc drop
+
+            // Keep everything in the `keep` list, plus any nodes that were unsafe to drop
+            let keep' = Set.union (Set.ofList keep) unsafeDrops
+
+            // Modify map entry for `node` to point to the `keep'` set
+            Map.add node keep' acc'
+        else
+            acc
+
+    Seq.fold pruneConnections m (Map.keys m)
+
 
 // Add edges for `newNodes` and return a new adjacency map.
 // The degree of each new node is determined by
@@ -184,7 +228,7 @@ let addEdges
     (newNodes: string array)
     (tier1KeySet: Set<string>)
     (random: System.Random)
-    : Map<string, string list> =
+    : Map<string, Set<string>> =
 
     // Note that each edge is represented by a pair (a, b) with a < b.
     // This ensures that each edge appears exactly once in edgeArray.
@@ -247,7 +291,10 @@ let addEdges
                     // Therefore, we choose to throw here.
                     failwith (sprintf "Unable to find an edge for %s after %d attempts" u maxRetryCount)
 
-    createAdjacencyMap (Set.toList edgeSet)
+    // TODO: Make the max connection count an option, and only call
+    // pruneAdjacencyMap if it's set. Pass the `fromJust` value to
+    // `pruneAdjacencyMap`.
+    createAdjacencyMap (Set.toList edgeSet) |> pruneAdjacencyMap
 
 let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMinConnectionCount: bool) : CoreSet list =
 
@@ -323,6 +370,8 @@ let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMin
     let adjacencyMap =
         addEdges allPubnetNodes (Array.map (fun (n: PubnetNode.Root) -> n.PublicKey) newNodes) tier1KeySet random
 
+    // TODO: Remove vv
+    printfn "Map: %A" adjacencyMap
     // First, we will remove all nodes with <= 4 connections because those nodes
     // seem to fail to stay in sync with the network.
     // Note that removing nodes may lead to more nodes having <= 4 connections,
@@ -527,8 +576,9 @@ let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMin
                     |>
                     // This filtering is necessary since we intentionally remove some nodes
                     // using networkSizeLimit.
-                    List.filter (fun (k: string) -> Set.contains k allPubnetNodeKeys)
-                    |> List.map getSimPubKey
+                    Set.filter (fun (k: string) -> Set.contains k allPubnetNodeKeys)
+                    |> Set.map getSimPubKey
+                    |> Set.toList
 
                 (key, peers))
         |> Map.ofArray
