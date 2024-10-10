@@ -182,7 +182,7 @@ let TweakableOrgsResourceRequirements : V1ResourceRequirements =
     // TODO: Should burstable amounts be higher?
     // TODO: Cluster died at .75vCPUs and 1500 GB RAM. Not sure if it's related,
     // but should probably cut these down and reduce TPS?
-    makeResourceRequirements 750 1500 4000 1500
+    makeResourceRequirements 700 1500 4000 1500
 
 let PgContainerVolumeMounts : V1VolumeMount array =
     [| V1VolumeMount(name = CfgVal.dataVolumeName, mountPath = CfgVal.dataVolumePath) |]

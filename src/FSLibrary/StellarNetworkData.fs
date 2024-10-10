@@ -23,6 +23,8 @@ let TestnetLatestHistoryArchiveState =
 type PubnetNode = JsonProvider<"json-type-samples/sample-network-data.json", SampleIsList=false, ResolutionFolder=cwd>
 type Tier1PublicKey = JsonProvider<"json-type-samples/sample-keys.json", SampleIsList=false, ResolutionFolder=cwd>
 
+type PeerMap = Map<string, Set<string>>
+
 // When scaling the network, we need to pick
 // the degree of each new node.
 // The following numbers are added here based on pubnet observations/educated guesses.
@@ -155,7 +157,7 @@ let extractEdges (graph: PubnetNode.Root array) : (string * string) array =
 // Given `edgeSet` containing edges (each edge is represented as a pair of strings),
 // create a map whose key is a pubkey and the corresponding value is the list of
 // nodes it's connected to.
-let createAdjacencyMap (edgeList: (string * string) list) : Map<string, Set<string>> =
+let createAdjacencyMap (edgeList: (string * string) list) : PeerMap =
     // So far, each edge connecting a and b is represented by the tuple (a, b) or (b, a).
     // When creating the adjacency list for the given graph,
     // we would like to add b to a's list, and a to b's list.
@@ -168,22 +170,21 @@ let createAdjacencyMap (edgeList: (string * string) list) : Map<string, Set<stri
 
     Map.ofList adjacencyList
 
+let private numPeers (map : PeerMap) (node : string) = Set.count (Map.find node map)
 
-let private pruneAdjacencyMap (m: Map<string, Set<string>>) : Map<string, Set<string>> =
+let private pruneAdjacencyMap (m: PeerMap) : PeerMap =
     let maxConnections = 65 // TODO: make configurable
     //let maxConnections = 5 // TODO: make configurable
 
 
-    let pruneConnections (acc : Map<string, Set<string>>) (node : string) : Map<string, Set<string>> =
+    let pruneConnections (acc : PeerMap) (node : string) : PeerMap =
         // TODO: Remove vv
         // printfn "Acc: %A" acc
-
-        let numPeers (node : string) = Set.count (Map.find node acc)
 
         let peers = Map.find node acc
         if Set.count peers > maxConnections then
             // Order peers by the number of connections they have
-            let sortedPeers = peers |> Set.toList |> List.sortBy numPeers
+            let sortedPeers = peers |> Set.toList |> List.sortBy (numPeers acc)
 
             // Drop better connected peers. Keep the worst connected peers so as
             // to not make them even worse connected.
@@ -219,7 +220,7 @@ let addEdges
     (newNodes: string array)
     (tier1KeySet: Set<string>)
     (random: System.Random)
-    : Map<string, Set<string>> =
+    : PeerMap =
 
     // Note that each edge is represented by a pair (a, b) with a < b.
     // This ensures that each edge appears exactly once in edgeArray.
@@ -230,6 +231,7 @@ let addEdges
     // and `edgeSet` helps us efficiently determine if a certain edge already exists.
     let edgeArrayList : ResizeArray<string * string> = new ResizeArray<string * string>(edgeArray)
     let mutable edgeSet : Set<string * string> = edgeArray |> Set.ofArray
+    printfn "Starting set size: %d" (Set.count edgeSet)
 
     for u in newNodes do
         let mutable degreeRemaining =
@@ -282,6 +284,8 @@ let addEdges
                     // Therefore, we choose to throw here.
                     failwith (sprintf "Unable to find an edge for %s after %d attempts" u maxRetryCount)
 
+    printfn "Ending set size: %d" (Set.count edgeSet)
+
     // TODO: Make the max connection count an option, and only call
     // pruneAdjacencyMap if it's set. Pass the `fromJust` value to
     // `pruneAdjacencyMap`.
@@ -306,6 +310,8 @@ let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMin
                       ((i - 1) / tier1OrgSize)
               ).[0] ]
         |> Array.ofList
+
+    printfn "New Tier1 Nodes: %A" newTier1Nodes
 
     let newNonTier1Nodes =
         [ for i in 1 .. context.nonTier1NodesToAdd ->
@@ -334,7 +340,9 @@ let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMin
         Array.append newTier1Nodes newNonTier1Nodes
         |> Array.sortBy (fun _ -> random.Next())
 
+    printfn "Num nodes before: %d" (Array.length allPubnetNodes)
     let allPubnetNodes = allPubnetNodes |> Array.append newNodes
+    printfn "Num nodes after adding new nodes: %d" (Array.length allPubnetNodes)
 
     // For each pubkey in the pubnet, we map it to an actual KeyPair (with a private
     // key) to use in the simulation. It's important to keep these straight! The keys
@@ -373,8 +381,11 @@ let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMin
 
     let orgNodes, miscNodes =
         allPubnetNodes
-        |> Array.filter (fun (n: PubnetNode.Root) -> minAllowedConnectionCount <= Array.length n.Peers)
+        |> Array.filter (fun (n: PubnetNode.Root) -> minAllowedConnectionCount <= numPeers adjacencyMap n.PublicKey)
         |> Array.partition (fun (n: PubnetNode.Root) -> n.SbHomeDomain.IsSome)
+
+    printfn "Number of org nodes: %d" (Array.length orgNodes)
+    printfn "Number of misc nodes: %d" (Array.length miscNodes)
 
     // We then trim down the set of misc nodes so that they fit within simulation
     // size limit passed. If we can't even fit the org nodes, we fail here.
