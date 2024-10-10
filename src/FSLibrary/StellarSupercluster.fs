@@ -248,14 +248,13 @@ type MissionContext with
         : unit =
         use formation = self.MakeFormation coreSetList passphrase
 
+        // TODO: Revert to try/finally
         try
-            try
-                formation.WaitUntilReady()
-                run formation
-                if checkConsistency then formation.CheckNoErrorsAndPairwiseConsistency()
-            finally
-                formation.DumpData()
+            formation.WaitUntilReady()
+            run formation
+            if checkConsistency then formation.CheckNoErrorsAndPairwiseConsistency()
         with x ->
+            formation.DumpData()
             (if self.keepData then formation.KeepData()
              reraise ())
 
