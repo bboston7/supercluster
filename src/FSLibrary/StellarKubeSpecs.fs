@@ -176,6 +176,8 @@ let AcceptanceTestCoreResourceRequirements : V1ResourceRequirements =
     makeResourceRequirements 4000 4096 4000 4096
 
 // TODO: Rename and add docs
+// TODO: Add this to doc explaining the test setup:
+// * We guarantee all pods 0.75 vCPUs, which is about as high as we can guarantee with ~600 nodes. However, we allow them to burst up to 4vCPUs. This is helpful because validators experience heavy CPU and wind up throttled if limited to 0.75 vCPUs. However, 0.75 is enough for the vast majority of watchers.
 let TweakableOrgsResourceRequirements : V1ResourceRequirements =
     // TODO: Should burstable amounts be higher?
     // TODO: Cluster died at .75vCPUs and 1500 GB RAM. Not sure if it's related,
