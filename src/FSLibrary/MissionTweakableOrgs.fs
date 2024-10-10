@@ -48,7 +48,10 @@ let tweakableOrgs(baseContext: MissionContext) =
               totalKiloBytesDistribution = defaultListValue pubnetTotalKiloBytes baseContext.totalKiloBytesDistribution
 
               txSizeBytesDistribution = defaultListValue pubnetTxSizeBytes baseContext.txSizeBytesDistribution
-              instructionsDistribution = defaultListValue pubnetInstructions baseContext.instructionsDistribution }
+              instructionsDistribution = defaultListValue pubnetInstructions baseContext.instructionsDistribution
+
+              enableBackggroundOverlay = true
+              }
 
     let fullCoreSet = FullPubnetCoreSets context true false
 
