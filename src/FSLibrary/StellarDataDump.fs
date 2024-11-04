@@ -239,7 +239,7 @@ type StellarFormation with
             self.DumpJobLogs(self.NetworkCfg.JobName i)
 
     member self.DumpData() =
-        self.NetworkCfg.EachPeer(self.DumpPeerData)
+        //self.NetworkCfg.EachPeer(self.DumpPeerData)
         self.LogContainerErrors()
 
     member self.LogContainerErrors() =
