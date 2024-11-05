@@ -174,6 +174,25 @@ let createAdjacencyMap (edgeList: (string * string) list) : PeerMap =
 // Get the number of peers a given node has.
 let private numPeers (map: PeerMap) (node: string) = Set.count (Map.find node map)
 
+// TODO: Docs
+let private fullyConnectTier1 (tier1: Set<string>) (m: PeerMap): PeerMap=
+    // Given a peer map and a node, add connections from `node` to all nodes in
+    // `tier1`. Note that this function does not add connections in the other
+    // direction. It should be called with all tier1 nodes to fully connect them
+    // symmetrically.
+    let connectAllPeers (acc: PeerMap) (node: string) : PeerMap =
+        let peers = Map.find node acc
+        let newPeers = Set.union peers tier1
+
+        // TODO: Make this log statement more useful (explaining what the values
+        // mean) and/or downgrade or remove
+        LogInfo "Fully connecting %s: %d -> %d" node (Set.count peers) (Set.count newPeers)
+
+        Map.add node newPeers acc
+
+    Set.fold connectAllPeers m tier1
+
+
 // Prune the adjacency map to ensure that no node has more than `maxConnections`
 // connections. Do not prune any connections where nodes on both sides of the
 // connection are in `noPrune`.
@@ -384,6 +403,7 @@ let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMin
     // and cause an issue to the scaling algorithm.
     let adjacencyMap =
         addEdges allPubnetNodes (Array.map (fun (n: PubnetNode.Root) -> n.PublicKey) newNodes) tier1KeySet random
+        |> if context.fullyConnectTier1 then fullyConnectTier1 tier1KeySet else id
         |> match context.maxConnections with
            | Some maxConnections ->
                // Prune map to ensure that no node has more than
