@@ -216,7 +216,7 @@ let private pruneAdjacencyMap (maxConnections: int) (noPrune: Set<string>) (m: P
             assert (Set.count keep = maxConnections)
 
             LogInfo "Pruning connections for %s: %d -> %d" node (Set.count peers) (Set.count keep)
-            printfn "Is tier 1? %b" (Set.contains node noPrune)
+            printfn "Is tier 1-ish? %b" (Set.contains node noPrune)
 
             // Remove self from dropped peers' sets
             let acc' =
@@ -386,10 +386,9 @@ let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMin
         addEdges allPubnetNodes (Array.map (fun (n: PubnetNode.Root) -> n.PublicKey) newNodes) tier1KeySet random
         |> match context.maxConnections with
            | Some maxConnections ->
-               // Prune map to ensure that no node has more than `maxConnections`
-               // connections.
-               printfn "t1 keys %A" tier1KeySet
-               pruneAdjacencyMap maxConnections tier1KeySet
+               // Prune map to ensure that no node has more than
+               // `maxConnections` connections.
+               pruneAdjacencyMap maxConnections (if context.fullyConnectTier1 then tier1KeySet else Set.empty)
            | None -> id
 
     // First, we will remove all nodes with <= 4 connections because those nodes
