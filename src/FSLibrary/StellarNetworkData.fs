@@ -175,7 +175,7 @@ let createAdjacencyMap (edgeList: (string * string) list) : PeerMap =
 let private numPeers (map: PeerMap) (node: string) = Set.count (Map.find node map)
 
 // TODO: Docs
-let private fullyConnectTier1 (tier1: Set<string>) (m: PeerMap): PeerMap=
+let private fullyConnectTier1 (tier1: Set<string>) (m: PeerMap) : PeerMap =
     // Given a peer map and a node, add connections from `node` to all nodes in
     // `tier1`. Note that this function does not add connections in the other
     // direction. It should be called with all tier1 nodes to fully connect them
@@ -196,7 +196,7 @@ let private fullyConnectTier1 (tier1: Set<string>) (m: PeerMap): PeerMap=
 // Prune the adjacency map to ensure that no node has more than `maxConnections`
 // connections. Do not prune any connections where nodes on both sides of the
 // connection are in `noPrune`.
-let private pruneAdjacencyMap (maxConnections: int) (noPrune: Set<string>) (m: PeerMap): PeerMap =
+let private pruneAdjacencyMap (maxConnections: int) (noPrune: Set<string>) (m: PeerMap) : PeerMap =
     let pruneConnections (acc: PeerMap) (node: string) : PeerMap =
         let peers = Map.find node acc
 
@@ -205,14 +205,15 @@ let private pruneAdjacencyMap (maxConnections: int) (noPrune: Set<string>) (m: P
             // `droppablePeers`. `mustKeepPeers` consists of peers that are in
             // `noPrune`, provided this node is in `noPrune`. `droppablePeers`
             // consists of the rest of the peers.
-            let mustKeepPeers, droppablePeers=
+            let mustKeepPeers, droppablePeers =
                 if Set.contains node noPrune then
                     peers |> Set.partition (fun x -> Set.contains x noPrune)
                 else
                     Set.empty, peers
 
             // TODO: Remove
-            if Set.count mustKeepPeers > 0 then printfn "Must keep %d peers" (Set.count mustKeepPeers)
+            if Set.count mustKeepPeers > 0 then
+                printfn "Must keep %d peers" (Set.count mustKeepPeers)
 
             // Order droppable peers by the number of connections they have
             let sortedDroppablePeers = droppablePeers |> Set.toList |> List.sortBy (numPeers acc)
