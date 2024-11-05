@@ -182,7 +182,11 @@ let private fullyConnectTier1 (tier1: Set<string>) (m: PeerMap) : PeerMap =
     // symmetrically.
     let connectAllPeers (acc: PeerMap) (node: string) : PeerMap =
         let peers = Map.find node acc
-        let newPeers = Set.union peers tier1
+
+        // Remove `node` from `tier1` to avoid connecting it to itself
+        let otherTier1 = Set.remove node tier1
+
+        let newPeers = Set.union peers otherTier1
 
         // TODO: Make this log statement more useful (explaining what the values
         // mean) and/or downgrade or remove
