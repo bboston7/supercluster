@@ -43,6 +43,8 @@ let simulatePubnetMixedLoad (baseContext: MissionContext) =
 
     let fullCoreSet = FullPubnetCoreSets context true false
 
+    failwith "TODO: Remove me"
+
     let tier1 = List.filter (fun (cs: CoreSet) -> cs.options.tier1 = Some true) fullCoreSet
 
     let nonTier1 = List.filter (fun (cs: CoreSet) -> cs.options.tier1 <> Some true) fullCoreSet
