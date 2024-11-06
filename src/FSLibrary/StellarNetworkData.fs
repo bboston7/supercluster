@@ -12,6 +12,9 @@ open StellarMissionContext
 open Logging
 open StellarDotnetSdk.Accounts
 
+// TODO: Remove
+open StellarNetworkDelays
+
 type HistoryArchiveState = JsonProvider<"json-type-samples/sample-stellar-history.json", ResolutionFolder=cwd>
 
 let PubnetLatestHistoryArchiveState =
@@ -671,6 +674,18 @@ let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMin
                 let coreSetOpts = coreSetOpts.WithWaitForConsensus shouldWaitForConsensus
                 makeCoreSetWithExplicitKeys hdn coreSetOpts keys)
             groupedOrgNodes
+
+    let t1 = Array.filter (fun (n: PubnetNode.Root) -> Set.contains n.PublicKey tier1KeySet) allPubnetNodes
+    let getLatencies (n : PubnetNode.Root) : unit =
+        let srcLoc = getGeoLocOrDefault n
+        let peers = Map.find n.PublicKey adjacencyMap
+        let peerNodes = Array.filter (fun (n: PubnetNode.Root) -> Set.contains n.PublicKey peers) t1 //allPubnetNodes
+        for peer in peerNodes do
+            if n.PublicKey < peer.PublicKey then
+                let dstLoc = getGeoLocOrDefault peer
+                let latency = networkPingInMs srcLoc dstLoc
+                printfn "%f" latency
+    Array.iter getLatencies t1
 
     Array.append miscCoreSets orgCoreSets |> List.ofArray
 
