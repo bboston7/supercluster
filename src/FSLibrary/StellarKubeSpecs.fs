@@ -181,7 +181,13 @@ let SimulatePubnetMixedLoadResourceRequirements : V1ResourceRequirements =
     // helpful because validators experience heavy CPU and wind up throttled if
     // limited to 0.7 vCPUs. However, 0.7 is enough for the vast majority of
     // watchers.
-    makeResourceRequirements 700 1500 4000 1500
+
+    // TODO: Ran out of CPU. Need to turn the guarantees down a little. Maybe
+    // it's because of the added links? Or maybe something else was running? I'm
+    // not sure...
+    // Regardless, I should probably dial this down a little bit (it was close)
+    // and run the 10 org simulation first, then the 7 org simulation.
+    makeResourceRequirements 650 1500 4000 1500
 
 let PgContainerVolumeMounts : V1VolumeMount array =
     [| V1VolumeMount(name = CfgVal.dataVolumeName, mountPath = CfgVal.dataVolumePath) |]
