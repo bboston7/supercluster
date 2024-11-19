@@ -220,7 +220,9 @@ let private pruneAdjacencyMap (maxConnections: int) (noPrune: Set<string>) (m: P
             let connectionsRemaining = maxConnections - Set.count mustKeepPeers
 
             if connectionsRemaining < 0 then
-                failwithf "Cannot limit connections to %d while fully connecting tier 1. Either increase --max-connections or remove --fully-connect-tier1" maxConnections
+                failwithf
+                    "Cannot limit connections to %d while fully connecting tier 1. Either increase --max-connections or remove --fully-connect-tier1"
+                    maxConnections
 
             // Drop better connected peers. Keep the worst connected peers so as
             // to not make them even worse connected.
