@@ -41,9 +41,6 @@ let simulatePubnetMixedLoad (baseContext: MissionContext) =
 
               enableBackggroundOverlay = true }
 
-    // TODO: Remove vv
-    printfn "Install network delay: %A" context.installNetworkDelay
-
     let fullCoreSet = FullPubnetCoreSets context true false
 
     let tier1 = List.filter (fun (cs: CoreSet) -> cs.options.tier1 = Some true) fullCoreSet

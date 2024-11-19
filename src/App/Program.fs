@@ -281,7 +281,7 @@ type MissionOptions
              Required = false)>]
     member self.MaxConnections = maxConnections
 
-    [<Option("fully-connect-tier1", HelpText = "TODO", Required = false, Default = false)>]
+    [<Option("fully-connect-tier1", HelpText = "When using pubnet data, connect every tier 1 node to every other tier 1 node.", Required = false, Default = false)>]
     member self.FullyConnectTier1 = fullyConnectTier1
 
     [<Option("op-count-distribution",

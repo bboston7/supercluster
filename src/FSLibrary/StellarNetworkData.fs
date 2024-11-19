@@ -12,9 +12,6 @@ open StellarMissionContext
 open Logging
 open StellarDotnetSdk.Accounts
 
-// TODO: Remove
-open StellarNetworkDelays
-
 type HistoryArchiveState = JsonProvider<"json-type-samples/sample-stellar-history.json", ResolutionFolder=cwd>
 
 let PubnetLatestHistoryArchiveState =
@@ -177,7 +174,8 @@ let createAdjacencyMap (edgeList: (string * string) list) : PeerMap =
 // Get the number of peers a given node has.
 let private numPeers (map: PeerMap) (node: string) = Set.count (Map.find node map)
 
-// TODO: Docs
+// Return an updated version of `m` with all nodes in `tier1` connected to each
+// other.
 let private fullyConnectTier1 (tier1: Set<string>) (m: PeerMap) : PeerMap =
     // Given a peer map and a node, add connections from `node` to all nodes in
     // `tier1`. Note that this function does not add connections in the other
@@ -190,11 +188,7 @@ let private fullyConnectTier1 (tier1: Set<string>) (m: PeerMap) : PeerMap =
         let otherTier1 = Set.remove node tier1
 
         let newPeers = Set.union peers otherTier1
-
-        // TODO: Make this log statement more useful (explaining what the values
-        // mean) and/or downgrade or remove
-        LogInfo "Fully connecting %s: %d -> %d" node (Set.count peers) (Set.count newPeers)
-
+        LogDebug "Fully connecting %s: %d peers -> %d peers" node (Set.count peers) (Set.count newPeers)
         Map.add node newPeers acc
 
     Set.fold connectAllPeers m tier1
@@ -218,10 +212,6 @@ let private pruneAdjacencyMap (maxConnections: int) (noPrune: Set<string>) (m: P
                 else
                     Set.empty, peers
 
-            // TODO: Remove
-            if Set.count mustKeepPeers > 0 then
-                printfn "Must keep %d peers" (Set.count mustKeepPeers)
-
             // Order droppable peers by the number of connections they have
             let sortedDroppablePeers = droppablePeers |> Set.toList |> List.sortBy (numPeers acc)
 
@@ -229,8 +219,8 @@ let private pruneAdjacencyMap (maxConnections: int) (noPrune: Set<string>) (m: P
             // that must remain.
             let connectionsRemaining = maxConnections - Set.count mustKeepPeers
 
-            // TODO: Turn into a real error or handle this case
-            assert (connectionsRemaining >= 0)
+            if connectionsRemaining < 0 then
+                failwithf "Cannot limit connections to %d while fully connecting tier 1. Either increase --max-connections or remove --fully-connect-tier1" maxConnections
 
             // Drop better connected peers. Keep the worst connected peers so as
             // to not make them even worse connected.
@@ -243,7 +233,6 @@ let private pruneAdjacencyMap (maxConnections: int) (noPrune: Set<string>) (m: P
             assert (Set.count keep = maxConnections)
 
             LogInfo "Pruning connections for %s: %d -> %d" node (Set.count peers) (Set.count keep)
-            printfn "Is tier 1-ish? %b" (Set.contains node noPrune)
 
             // Remove self from dropped peers' sets
             let acc' =
@@ -674,18 +663,6 @@ let FullPubnetCoreSets (context: MissionContext) (manualclose: bool) (enforceMin
                 let coreSetOpts = coreSetOpts.WithWaitForConsensus shouldWaitForConsensus
                 makeCoreSetWithExplicitKeys hdn coreSetOpts keys)
             groupedOrgNodes
-
-    let t1 = Array.filter (fun (n: PubnetNode.Root) -> Set.contains n.PublicKey tier1KeySet) allPubnetNodes
-    let getLatencies (n : PubnetNode.Root) : unit =
-        let srcLoc = getGeoLocOrDefault n
-        let peers = Map.find n.PublicKey adjacencyMap
-        let peerNodes = Array.filter (fun (n: PubnetNode.Root) -> Set.contains n.PublicKey peers) t1 //allPubnetNodes
-        for peer in peerNodes do
-            if n.PublicKey < peer.PublicKey then
-                let dstLoc = getGeoLocOrDefault peer
-                let latency = networkPingInMs srcLoc dstLoc
-                printfn "%f" latency
-    Array.iter getLatencies t1
 
     Array.append miscCoreSets orgCoreSets |> List.ofArray
 
