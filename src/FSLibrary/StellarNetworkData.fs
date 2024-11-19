@@ -208,7 +208,7 @@ let private pruneAdjacencyMap (maxConnections: int) (noPrune: Set<string>) (m: P
             // consists of the rest of the peers.
             let mustKeepPeers, droppablePeers =
                 if Set.contains node noPrune then
-                    peers |> Set.partition (fun x -> Set.contains x noPrune)
+                    Set.partition (fun x -> Set.contains x noPrune) peers
                 else
                     Set.empty, peers
 
