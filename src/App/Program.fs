@@ -93,6 +93,7 @@ type MissionOptions
         flatNetworkDelay: int option,
         peerReadingCapacity: int option,
         enableBackgroundOverlay: bool,
+        enableBackgroundTxQueue: bool,
         peerFloodCapacity: int option,
         peerFloodCapacityBytes: int option,
         flowControlSendMoreBatchSizeBytes: int option,
@@ -381,6 +382,9 @@ type MissionOptions
     [<Option("enable-background-overlay", HelpText = "background overlay")>]
     member self.EnableBackgroundOverlay : bool = enableBackgroundOverlay
 
+    [<Option("enable-background-tx-queue", HelpText = "background tx queue")>]
+    member self.EnableBackgroundTxQueue : bool = enableBackgroundOverlay
+
     [<Option("peer-flood-capacity",
              HelpText = "A config parameter that controls how many flood messages (tx or SCP) from a particular peer core can process simultaneously (See PEER_FLOOD_READING_CAPACITY)",
              Required = false)>]
@@ -575,6 +579,7 @@ let main argv =
                   peerFloodCapacity = None
                   peerReadingCapacity = None
                   enableBackggroundOverlay = false
+                  enableBackgroundTxQueue = false
                   peerFloodCapacityBytes = None
                   outboundByteLimit = None
                   sleepMainThread = None
@@ -714,6 +719,7 @@ let main argv =
                                simulateApplyWeight = processInputSeq mission.SimulateApplyWeight
                                peerReadingCapacity = mission.PeerReadingCapacity
                                enableBackggroundOverlay = mission.EnableBackgroundOverlay
+                               enableBackgroundTxQueue = mission.EnableBackgroundTxQueue
                                peerFloodCapacity = mission.PeerFloodCapacity
                                peerFloodCapacityBytes = mission.PeerFloodCapacityBytes
                                outboundByteLimit = mission.OutboundByteLimit
