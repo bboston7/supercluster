@@ -9,7 +9,7 @@ which 3 are validators.  We provide this topology in
 To run the test, first [set up an EKS cluster](eks.md). Then, run a
 `MaxTPSClassic` mission with the following template:
 ```bash
-dotnet run --project src/App/App.fsproj --configuration Release -- mission MaxTPSClassic --image=<core-image> --netdelay-image=stellar/sdf-netdelay:latest --pubnet-data=<path-to-repo>/topologies/theoretical-max-tps.json --num-runs=<runs> --tx-rate=<min-tx-rate> --max-tx-rate=<max-tx-rate> --namespace default --ingress-internal-domain=<domain> --ingress-class=nginx
+dotnet run --project src/App/App.fsproj --configuration Release -- mission MaxTPSClassic --image=<core-image> --install-network-delay=false --pubnet-data=<path-to-repo>/topologies/theoretical-max-tps.json --num-runs=<runs> --tx-rate=<min-tx-rate> --max-tx-rate=<max-tx-rate> --namespace default --ingress-internal-domain=<domain> --ingress-class=nginx
 ```
 For more information about how to set the parameters in the above command, see
 [Measuring Transaction Throughput](measuring-transaction-throughput.md).
@@ -28,6 +28,7 @@ stellar-core release.
 
 | Core Version | Core Image | Database Backend | Topology (total # of stellar-core nodes / # of validators) | EC2 Instance Type | Number of EC2 Instances | Max TPS | Notes |
 |--------------|------------|------------------|------------------------------------------------------------|-------------------|-------------------------|---------|-------|
+| 22.2.0 | `stellar/unsafe-stellar-core:22.2.0-2361.e6c1f3bfc.focal-perftests` | BucketListDB | 7 / 3 | m5d.4xlarge | 10 | 1351 | <ul><li>Disabling network latency simulation led to a small increase in measured TPS</li> <li>Improvements in BucketList caching resulted in a significant performance improvement</li></ul> |
 | 22.1.0rc1 | `stellar/unsafe-stellar-core:22.1.0-2189.rc1.fdd833d57.focal-perftests` | BucketListDB | 7 / 3 | m5d.4xlarge | 10 | 989 | Performance improvement due to [networking changes](https://github.com/stellar/stellar-core/pull/4544) |
 | 22.0.0 | `stellar/unsafe-stellar-core:22.0.0-2138.721fd0a65.focal-perftests` | BucketListDB | 7 / 3 | m5d.4xlarge | 10 | 902 | |
 | 22.0.0rc2 | `stellar/unsafe-stellar-core:22.0.0-2095.rc2.1bccbc921.focal-perftests` | BucketListDB | 7 / 3 | m5d.4xlarge | 10 | 958 | First version with mandatory BucketListDB backend |
