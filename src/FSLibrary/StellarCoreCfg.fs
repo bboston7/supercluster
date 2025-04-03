@@ -194,7 +194,9 @@ type StellarCoreCfg =
         t.Add("DEPRECATED_SQL_LEDGER_STATE", self.deprecatedSQLState) |> ignore
         t.Add("METADATA_DEBUG_LEDGERS", 0) |> ignore
         t.Add("MAX_OUTBOUND_QUEUE_SIZE", 10000) |> ignore
-        t.Add("EXPERIMENTAL_PARALLEL_LEDGER_APPLY", true) |> ignore
+
+        if self.network.missionContext.enableParallelApply then
+            t.Add("EXPERIMENTAL_PARALLEL_LEDGER_APPLY", true) |> ignore
 
         match self.network.missionContext.genesisTestAccountCount with
         | Some count -> t.Add("GENESIS_TEST_ACCOUNT_COUNT", count) |> ignore
