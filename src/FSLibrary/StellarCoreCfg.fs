@@ -217,8 +217,8 @@ type StellarCoreCfg =
             t.Add("EXPERIMENTAL_BACKGROUND_OVERLAY_PROCESSING", true) |> ignore
 
         // TODO: Test this works using debug tx logs on a simple test
-        if self.network.missionContext.enableBackgroundTxQueue then
-            t.Add("EXPERIMENTAL_BACKGROUND_TX_QUEUE", true) |> ignore
+        if self.network.missionContext.enableBackgroundTxValidation then
+            t.Add("EXPERIMENTAL_BACKGROUND_TX_VALIDATION", true) |> ignore
 
         match self.network.missionContext.peerReadingCapacity, self.network.missionContext.peerFloodCapacity with
         | None, None -> ()
