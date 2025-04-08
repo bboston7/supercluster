@@ -118,9 +118,8 @@ let NetworkDelayScriptResourceRequirements : V1ResourceRequirements =
 
 let SimulatePubnetTier1PerfCoreResourceRequirements : V1ResourceRequirements =
     // Tier1 perf simulation is interested in "how fast can we go in practice"
-    // which means configuring the nodes like a real operator would: 1-4 vCPU
-    // and 128MB-2GB RAM.
-    // TODO: Revert these limits?
+    // which means configuring the nodes like a real operator would: 0.5-6 vCPU
+    // and 128MB-6GB RAM.
     makeResourceRequirements 500 128 6000 6000
 
 let ParallelCatchupCoreResourceRequirements : V1ResourceRequirements =

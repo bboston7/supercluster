@@ -382,7 +382,7 @@ type MissionOptions
     [<Option("enable-background-overlay", HelpText = "background overlay")>]
     member self.EnableBackgroundOverlay : bool = enableBackgroundOverlay
 
-    [<Option("enable-background-tx-validation", HelpText = "background tx queue")>]
+    [<Option("enable-background-tx-validation", HelpText = "background transaction validation")>]
     member self.EnableBackgroundTxValidation : bool = enableBackgroundTxValidation
 
     [<Option("peer-flood-capacity",
