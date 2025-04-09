@@ -93,6 +93,7 @@ type MissionOptions
         flatNetworkDelay: int option,
         peerReadingCapacity: int option,
         enableBackgroundOverlay: bool,
+        triggerOffset: bool,
         enableParallelApply: bool,
         peerFloodCapacity: int option,
         peerFloodCapacityBytes: int option,
@@ -383,6 +384,9 @@ type MissionOptions
     [<Option("enable-background-overlay", HelpText = "background overlay")>]
     member self.EnableBackgroundOverlay : bool = enableBackgroundOverlay
 
+    [<Option("trigger-offset", HelpText = "trigger offset")>]
+    member self.TriggerOffset : bool = triggerOffset
+
     [<Option("enable-parallel-apply",
              HelpText = "Enable EXPERIMENTAL_PARALLEL_LEDGER_APPLY configuration",
              Required = false,
@@ -588,6 +592,7 @@ let main argv =
                   peerFloodCapacity = None
                   peerReadingCapacity = None
                   enableBackggroundOverlay = false
+                  triggerOffset = false
                   enableParallelApply = false
                   peerFloodCapacityBytes = None
                   outboundByteLimit = None
@@ -729,6 +734,7 @@ let main argv =
                                simulateApplyWeight = processInputSeq mission.SimulateApplyWeight
                                peerReadingCapacity = mission.PeerReadingCapacity
                                enableBackggroundOverlay = mission.EnableBackgroundOverlay
+                               triggerOffset = mission.TriggerOffset
                                enableParallelApply = mission.EnableParallelApply
                                peerFloodCapacity = mission.PeerFloodCapacity
                                peerFloodCapacityBytes = mission.PeerFloodCapacityBytes

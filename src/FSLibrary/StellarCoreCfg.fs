@@ -263,7 +263,9 @@ type StellarCoreCfg =
         t.Add("ARTIFICIALLY_GENERATE_LOAD_FOR_TESTING", self.generateLoad) |> ignore
         t.Add("FLOOD_DEMAND_PERIOD_MS", 100) |> ignore
         t.Add("SKIP_SCP_PERSISTENCE_FOR_TESTING", true) |> ignore
-        t.Add("TRIGGER_OFFSET_FOR_TESTING", 3) |> ignore
+
+        if self.network.missionContext.triggerOffset then
+            t.Add("TRIGGER_OFFSET_FOR_TESTING", 3) |> ignore
 
         if self.updateSorobanCosts.IsSome then
             t.Add("UPDATE_SOROBAN_COSTS_DURING_PROTOCOL_UPGRADE_FOR_TESTING", self.updateSorobanCosts.Value)

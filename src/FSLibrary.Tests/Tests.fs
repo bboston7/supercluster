@@ -73,6 +73,7 @@ let ctx : MissionContext =
       peerReadingCapacity = None
       peerFloodCapacity = None
       enableBackggroundOverlay = false
+      triggerOffset = false
       enableParallelApply = false
       peerFloodCapacityBytes = None
       outboundByteLimit = None
