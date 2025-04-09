@@ -89,6 +89,7 @@ type MissionContext =
       peerReadingCapacity: int option
       enableBackggroundOverlay: bool
       triggerOffset: bool
+      enableBackgroundSigValidation: bool
       enableParallelApply: bool
       peerFloodCapacity: int option
       peerFloodCapacityBytes: int option

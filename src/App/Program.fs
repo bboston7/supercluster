@@ -94,6 +94,7 @@ type MissionOptions
         peerReadingCapacity: int option,
         enableBackgroundOverlay: bool,
         triggerOffset: bool,
+        enableBackgroundSigValidation: bool,
         enableParallelApply: bool,
         peerFloodCapacity: int option,
         peerFloodCapacityBytes: int option,
@@ -387,6 +388,9 @@ type MissionOptions
     [<Option("trigger-offset", HelpText = "trigger offset")>]
     member self.TriggerOffset : bool = triggerOffset
 
+    [<Option("enable-background-sig-validation", HelpText = "enable background signature validation")>]
+    member self.EnableBackgroundSigValidation : bool = enableBackgroundSigValidation
+
     [<Option("enable-parallel-apply",
              HelpText = "Enable EXPERIMENTAL_PARALLEL_LEDGER_APPLY configuration",
              Required = false,
@@ -593,6 +597,7 @@ let main argv =
                   peerReadingCapacity = None
                   enableBackggroundOverlay = false
                   triggerOffset = false
+                  enableBackgroundSigValidation = false
                   enableParallelApply = false
                   peerFloodCapacityBytes = None
                   outboundByteLimit = None
@@ -735,6 +740,7 @@ let main argv =
                                peerReadingCapacity = mission.PeerReadingCapacity
                                enableBackggroundOverlay = mission.EnableBackgroundOverlay
                                triggerOffset = mission.TriggerOffset
+                               enableBackgroundSigValidation = mission.EnableBackgroundSigValidation
                                enableParallelApply = mission.EnableParallelApply
                                peerFloodCapacity = mission.PeerFloodCapacity
                                peerFloodCapacityBytes = mission.PeerFloodCapacityBytes

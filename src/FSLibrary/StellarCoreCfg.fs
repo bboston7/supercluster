@@ -220,6 +220,9 @@ type StellarCoreCfg =
         if self.network.missionContext.enableBackggroundOverlay then
             t.Add("EXPERIMENTAL_BACKGROUND_OVERLAY_PROCESSING", true) |> ignore
 
+        if self.network.missionContext.enableBackgroundSigValidation then
+            t.Add("EXPERIMENTAL_BACKGROUND_TX_SIG_VERIFICATION", true) |> ignore
+
         match self.network.missionContext.peerReadingCapacity, self.network.missionContext.peerFloodCapacity with
         | None, None -> ()
         | Some read, Some flood ->
