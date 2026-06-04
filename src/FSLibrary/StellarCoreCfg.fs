@@ -294,6 +294,10 @@ type StellarCoreCfg =
         t.Add("ARTIFICIALLY_ACCELERATE_TIME_FOR_TESTING", self.accelerateTime) |> ignore
         t.Add("ARTIFICIALLY_GENERATE_LOAD_FOR_TESTING", self.generateLoad) |> ignore
 
+        // TODO: Put behind a flag
+        t.Add("EXPERIMENTAL_PARALLEL_TX_SET_DOWNLOAD", true) |> ignore
+        t.Add("EXPERIMENTAL_TRIGGER_TIMER", true) |> ignore
+
         if self.updateSorobanCosts.IsSome then
             t.Add("UPDATE_SOROBAN_COSTS_DURING_PROTOCOL_UPGRADE_FOR_TESTING", self.updateSorobanCosts.Value)
             |> ignore
