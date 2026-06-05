@@ -42,6 +42,7 @@ SAC_TX_RATE=
 OZ_TX_RATE=
 SOROSWAP_TX_RATE=
 ENABLE_PDL=
+ENABLE_TT=
 
 IMAGE_REPOSITORY="746476062914.dkr.ecr.us-east-1.amazonaws.com/dev"
 
@@ -69,7 +70,7 @@ NETWORK_SIZE_LIMIT=277
 
 usage() {
 	cat <<EOF
-Usage: $0 --stellar-core-image IMAGE [--data-root PATH] [--sac RATE] [--oz RATE] [--soroswap RATE] [--network-size-limit N] [--enable-pdl]
+Usage: $0 --stellar-core-image IMAGE [--data-root PATH] [--sac RATE] [--oz RATE] [--soroswap RATE] [--network-size-limit N] [--enable-pdl] [--enable-tt]
 
 Runs one MinBlockTimeMixed mission per selected load flag against IMAGE.
 Each run always generates ${CLASSIC_TX_RATE} classic payment TPS plus the
@@ -87,6 +88,7 @@ Options:
                                         Can be supplied with other load flags to run benchmarks sequentially.
   --network-size-limit N                Number of pubnet nodes to simulate. Default ${NETWORK_SIZE_LIMIT}.
   --enable-pdl                          Enable EXPERIMENTAL_PARALLEL_TX_SET_DOWNLOAD on all nodes (default off).
+  --enable-tt                           Enable EXPERIMENTAL_TRIGGER_TIMER on all nodes (default off).
   -h, --help                            Show this help.
 
 Benchmark constants:
@@ -199,6 +201,10 @@ parse_args() {
 			ENABLE_PDL=1
 			shift
 			;;
+		--enable-tt)
+			ENABLE_TT=1
+			shift
+			;;
 		-h | --help)
 			usage
 			exit 0
@@ -301,6 +307,11 @@ run_min_block_time_mixed() {
 		pdl_flag=--enable-pdl
 	fi
 
+	tt_flag=
+	if [ -n "$ENABLE_TT" ]; then
+		tt_flag=--enable-tt
+	fi
+
 	dotnet run \
 		--project "$PROJECT" \
 		mission "$MISSION" \
@@ -314,6 +325,7 @@ run_min_block_time_mixed() {
 		--avoid-node-labels="$AVOID_NODE_LABELS" \
 		--export-to-prometheus \
 		$pdl_flag \
+		$tt_flag \
 		--classic-tx-rate="$CLASSIC_TX_RATE" \
 		--soroban-tx-rate="$soroban_tx_rate" \
 		--min-block-time-mixed-mode="$min_block_time_mixed_mode" \

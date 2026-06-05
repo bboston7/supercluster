@@ -98,6 +98,7 @@ type MissionOptions
         enableParallelApply: bool,
         enableInMemoryBuckets: bool,
         enablePdl: bool,
+        enableTt: bool,
         peerFloodCapacity: int option,
         peerFloodCapacityBytes: int option,
         sleepMainThread: int option,
@@ -423,6 +424,12 @@ type MissionOptions
              Required = false,
              Default = false)>]
     member self.EnablePdl : bool = enablePdl
+
+    [<Option("enable-tt",
+             HelpText = "Enable EXPERIMENTAL_TRIGGER_TIMER configuration",
+             Required = false,
+             Default = false)>]
+    member self.EnableTt : bool = enableTt
 
     [<Option("in-memory-buckets",
              HelpText = "Enable in-memory buckets by setting BUCKETLIST_DB_INDEX_PAGE_SIZE_EXPONENT=0",
@@ -833,6 +840,7 @@ let main argv =
                                enableParallelApply = mission.EnableParallelApply
                                enableInMemoryBuckets = mission.EnableInMemoryBuckets
                                enablePdl = mission.EnablePdl
+                               enableTt = mission.EnableTt
                                peerFloodCapacity = mission.PeerFloodCapacity
                                peerFloodCapacityBytes = mission.PeerFloodCapacityBytes
                                outboundByteLimit = mission.OutboundByteLimit
