@@ -41,6 +41,7 @@ STELLAR_CORE_IMAGE=
 SAC_TX_RATE=
 OZ_TX_RATE=
 SOROSWAP_TX_RATE=
+ENABLE_PDL=
 
 IMAGE_REPOSITORY="746476062914.dkr.ecr.us-east-1.amazonaws.com/dev"
 
@@ -68,7 +69,7 @@ NETWORK_SIZE_LIMIT=277
 
 usage() {
 	cat <<EOF
-Usage: $0 --stellar-core-image IMAGE [--data-root PATH] [--sac RATE] [--oz RATE] [--soroswap RATE]
+Usage: $0 --stellar-core-image IMAGE [--data-root PATH] [--sac RATE] [--oz RATE] [--soroswap RATE] [--enable-pdl]
 
 Runs one MinBlockTimeMixed mission per selected load flag against IMAGE.
 Each run always generates ${CLASSIC_TX_RATE} classic payment TPS plus the
@@ -84,6 +85,7 @@ Options:
                                         Can be supplied with other load flags to run benchmarks sequentially.
   --soroswap RATE                       Run Soroswap load with the given Soroban tx rate.
                                         Can be supplied with other load flags to run benchmarks sequentially.
+  --enable-pdl                          Enable EXPERIMENTAL_PARALLEL_TX_SET_DOWNLOAD on all nodes (default off).
   -h, --help                            Show this help.
 
 Benchmark constants:
@@ -180,6 +182,10 @@ parse_args() {
 			SOROSWAP_TX_RATE="${1#*=}"
 			shift
 			;;
+		--enable-pdl)
+			ENABLE_PDL=1
+			shift
+			;;
 		-h | --help)
 			usage
 			exit 0
@@ -271,6 +277,11 @@ run_min_block_time_mixed() {
 	min_block_time_mixed_mode="$(resolve_min_block_time_mixed_mode "$mode_alias")"
 	simulate_apply_duration="$(calculate_simulate_apply_duration "$CLASSIC_TX_RATE" "$soroban_tx_rate")"
 
+	pdl_flag=
+	if [ -n "$ENABLE_PDL" ]; then
+		pdl_flag=--enable-pdl
+	fi
+
 	dotnet run \
 		--project "$PROJECT" \
 		mission "$MISSION" \
@@ -283,6 +294,7 @@ run_min_block_time_mixed() {
 		--ingress-internal-domain="$INGRESS_INTERNAL_DOMAIN" \
 		--avoid-node-labels="$AVOID_NODE_LABELS" \
 		--export-to-prometheus \
+		$pdl_flag \
 		--classic-tx-rate="$CLASSIC_TX_RATE" \
 		--soroban-tx-rate="$soroban_tx_rate" \
 		--min-block-time-mixed-mode="$min_block_time_mixed_mode" \

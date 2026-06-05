@@ -97,6 +97,7 @@ type MissionOptions
         enableBackgroundSigValidation: bool,
         enableParallelApply: bool,
         enableInMemoryBuckets: bool,
+        enablePdl: bool,
         peerFloodCapacity: int option,
         peerFloodCapacityBytes: int option,
         sleepMainThread: int option,
@@ -416,6 +417,12 @@ type MissionOptions
              Required = false,
              Default = false)>]
     member self.EnableParallelApply : bool = enableParallelApply
+
+    [<Option("enable-pdl",
+             HelpText = "Enable EXPERIMENTAL_PARALLEL_TX_SET_DOWNLOAD configuration",
+             Required = false,
+             Default = false)>]
+    member self.EnablePdl : bool = enablePdl
 
     [<Option("in-memory-buckets",
              HelpText = "Enable in-memory buckets by setting BUCKETLIST_DB_INDEX_PAGE_SIZE_EXPONENT=0",
@@ -825,6 +832,7 @@ let main argv =
                                enableBackgroundSigValidation = mission.EnableBackgroundSigValidation
                                enableParallelApply = mission.EnableParallelApply
                                enableInMemoryBuckets = mission.EnableInMemoryBuckets
+                               enablePdl = mission.EnablePdl
                                peerFloodCapacity = mission.PeerFloodCapacity
                                peerFloodCapacityBytes = mission.PeerFloodCapacityBytes
                                outboundByteLimit = mission.OutboundByteLimit

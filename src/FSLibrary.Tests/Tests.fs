@@ -77,6 +77,7 @@ let ctx : MissionContext =
       enableBackgroundSigValidation = false
       enableParallelApply = false
       enableInMemoryBuckets = false
+      enablePdl = false
       peerFloodCapacityBytes = None
       outboundByteLimit = None
       sleepMainThread = None

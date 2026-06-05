@@ -91,6 +91,7 @@ type MissionContext =
       enableBackgroundSigValidation: bool
       enableParallelApply: bool
       enableInMemoryBuckets: bool
+      enablePdl: bool
       peerFloodCapacity: int option
       peerFloodCapacityBytes: int option
       sleepMainThread: int option
