@@ -409,10 +409,10 @@ type MissionContext with
         use formation = self.MakeFormationForJob opts passphrase
 
         try
-            try
+            //try
                 run formation
-            finally
-                formation.DumpJobData()
+            //finally
+            //    formation.DumpJobData()
         with x ->
             (if self.keepData then formation.KeepData()
              reraise ())
