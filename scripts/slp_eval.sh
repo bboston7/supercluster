@@ -65,11 +65,11 @@ NUM_PREGENERATED_TXS=1000000
 GENESIS_TEST_ACCOUNT_COUNT=1000000
 SIMULATE_APPLY_WEIGHT=100
 SIMULATE_APPLY_BUDGET_MS=600
-NETWORK_SIZE_LIMIT=100
+NETWORK_SIZE_LIMIT=277
 
 usage() {
 	cat <<EOF
-Usage: $0 --stellar-core-image IMAGE [--data-root PATH] [--sac RATE] [--oz RATE] [--soroswap RATE] [--enable-pdl]
+Usage: $0 --stellar-core-image IMAGE [--data-root PATH] [--sac RATE] [--oz RATE] [--soroswap RATE] [--network-size-limit N] [--enable-pdl]
 
 Runs one MinBlockTimeMixed mission per selected load flag against IMAGE.
 Each run always generates ${CLASSIC_TX_RATE} classic payment TPS plus the
@@ -85,13 +85,13 @@ Options:
                                         Can be supplied with other load flags to run benchmarks sequentially.
   --soroswap RATE                       Run Soroswap load with the given Soroban tx rate.
                                         Can be supplied with other load flags to run benchmarks sequentially.
+  --network-size-limit N                Number of pubnet nodes to simulate. Default ${NETWORK_SIZE_LIMIT}.
   --enable-pdl                          Enable EXPERIMENTAL_PARALLEL_TX_SET_DOWNLOAD on all nodes (default off).
   -h, --help                            Show this help.
 
 Benchmark constants:
   Classic TPS:        ${CLASSIC_TX_RATE}
   Target close time:  ${BLOCK_TIME_MS}ms, evaluated via [${MIN_BLOCK_TIME_MS}, ${MAX_BLOCK_TIME_MS}]
-  Network size limit: ${NETWORK_SIZE_LIMIT}
   Data set:           data/public-network-data-2025-06-24.json
 
 Results:
@@ -182,6 +182,19 @@ parse_args() {
 			SOROSWAP_TX_RATE="${1#*=}"
 			shift
 			;;
+		--network-size-limit)
+			if [ "$#" -lt 2 ] || [ -z "$2" ]; then
+				printf '%s\n' "--network-size-limit requires a value." >&2
+				usage >&2
+				exit 1
+			fi
+			NETWORK_SIZE_LIMIT="$2"
+			shift 2
+			;;
+		--network-size-limit=*)
+			NETWORK_SIZE_LIMIT="${1#*=}"
+			shift
+			;;
 		--enable-pdl)
 			ENABLE_PDL=1
 			shift
@@ -232,6 +245,12 @@ validate_args() {
 
 	if [ -n "$SOROSWAP_TX_RATE" ]; then
 		validate_tx_rate "--soroswap" "$SOROSWAP_TX_RATE"
+	fi
+
+	if ! is_nonnegative_integer "$NETWORK_SIZE_LIMIT" || [ "$NETWORK_SIZE_LIMIT" -eq 0 ]; then
+		printf '%s\n' "--network-size-limit must be a positive integer." >&2
+		usage >&2
+		exit 1
 	fi
 }
 
