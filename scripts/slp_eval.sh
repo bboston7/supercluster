@@ -339,6 +339,7 @@ run_min_block_time_mixed() {
 		--tier1-keys "$TIER1_KEYS" \
 		--network-size-limit "$NETWORK_SIZE_LIMIT" \
 		--require-node-labels=purpose:largetests \
+		--enable-relaxed-auto-qset-config \
 		--tolerate-node-taints=largetests
 }
 
