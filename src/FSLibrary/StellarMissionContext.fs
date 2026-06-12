@@ -93,6 +93,7 @@ type MissionContext =
       enableInMemoryBuckets: bool
       enablePdl: bool
       enableTt: bool
+      enableHts: bool
       peerFloodCapacity: int option
       peerFloodCapacityBytes: int option
       sleepMainThread: int option

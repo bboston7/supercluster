@@ -99,6 +99,7 @@ type MissionOptions
         enableInMemoryBuckets: bool,
         enablePdl: bool,
         enableTt: bool,
+        enableHts: bool,
         peerFloodCapacity: int option,
         peerFloodCapacityBytes: int option,
         sleepMainThread: int option,
@@ -430,6 +431,12 @@ type MissionOptions
              Required = false,
              Default = false)>]
     member self.EnableTt : bool = enableTt
+
+    [<Option("enable-hts",
+             HelpText = "Enable EXPERIMENTAL_HAS_TX_SET configuration",
+             Required = false,
+             Default = false)>]
+    member self.EnableHts : bool = enableHts
 
     [<Option("in-memory-buckets",
              HelpText = "Enable in-memory buckets by setting BUCKETLIST_DB_INDEX_PAGE_SIZE_EXPONENT=0",
@@ -841,6 +848,7 @@ let main argv =
                                enableInMemoryBuckets = mission.EnableInMemoryBuckets
                                enablePdl = mission.EnablePdl
                                enableTt = mission.EnableTt
+                               enableHts = mission.EnableHts
                                peerFloodCapacity = mission.PeerFloodCapacity
                                peerFloodCapacityBytes = mission.PeerFloodCapacityBytes
                                outboundByteLimit = mission.OutboundByteLimit

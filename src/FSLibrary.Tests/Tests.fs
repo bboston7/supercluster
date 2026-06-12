@@ -79,6 +79,7 @@ let ctx : MissionContext =
       enableInMemoryBuckets = false
       enablePdl = false
       enableTt = false
+      enableHts = false
       peerFloodCapacityBytes = None
       outboundByteLimit = None
       sleepMainThread = None
