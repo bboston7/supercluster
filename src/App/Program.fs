@@ -100,6 +100,7 @@ type MissionOptions
         enablePdl: bool,
         enableTt: bool,
         enableHts: bool,
+        enableReask: bool,
         peerFloodCapacity: int option,
         peerFloodCapacityBytes: int option,
         sleepMainThread: int option,
@@ -437,6 +438,12 @@ type MissionOptions
              Required = false,
              Default = false)>]
     member self.EnableHts : bool = enableHts
+
+    [<Option("enable-reask",
+             HelpText = "Set EXPERIMENTAL_TX_SET_FETCH_REASK_DELAY to 500",
+             Required = false,
+             Default = false)>]
+    member self.EnableReask : bool = enableReask
 
     [<Option("in-memory-buckets",
              HelpText = "Enable in-memory buckets by setting BUCKETLIST_DB_INDEX_PAGE_SIZE_EXPONENT=0",
@@ -849,6 +856,7 @@ let main argv =
                                enablePdl = mission.EnablePdl
                                enableTt = mission.EnableTt
                                enableHts = mission.EnableHts
+                               enableReask = mission.EnableReask
                                peerFloodCapacity = mission.PeerFloodCapacity
                                peerFloodCapacityBytes = mission.PeerFloodCapacityBytes
                                outboundByteLimit = mission.OutboundByteLimit

@@ -94,6 +94,7 @@ type MissionContext =
       enablePdl: bool
       enableTt: bool
       enableHts: bool
+      enableReask: bool
       peerFloodCapacity: int option
       peerFloodCapacityBytes: int option
       sleepMainThread: int option

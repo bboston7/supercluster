@@ -303,6 +303,9 @@ type StellarCoreCfg =
         if self.network.missionContext.enableHts then
             t.Add("EXPERIMENTAL_HAS_TX_SET", true) |> ignore
 
+        if self.network.missionContext.enableReask then
+            t.Add("EXPERIMENTAL_TX_SET_FETCH_REASK_DELAY", 500) |> ignore
+
         if self.updateSorobanCosts.IsSome then
             t.Add("UPDATE_SOROBAN_COSTS_DURING_PROTOCOL_UPGRADE_FOR_TESTING", self.updateSorobanCosts.Value)
             |> ignore

@@ -44,6 +44,7 @@ SOROSWAP_TX_RATE=
 ENABLE_PDL=
 ENABLE_TT=
 ENABLE_HTS=
+ENABLE_REASK=
 
 IMAGE_REPOSITORY="746476062914.dkr.ecr.us-east-1.amazonaws.com/dev"
 
@@ -71,7 +72,7 @@ NETWORK_SIZE_LIMIT=277
 
 usage() {
 	cat <<EOF
-Usage: $0 --stellar-core-image IMAGE [--data-root PATH] [--sac RATE] [--oz RATE] [--soroswap RATE] [--network-size-limit N] [--enable-pdl] [--enable-tt] [--enable-hts]
+Usage: $0 --stellar-core-image IMAGE [--data-root PATH] [--sac RATE] [--oz RATE] [--soroswap RATE] [--network-size-limit N] [--enable-pdl] [--enable-tt] [--enable-hts] [--enable-reask]
 
 Runs one MinBlockTimeMixed mission per selected load flag against IMAGE.
 Each run always generates ${CLASSIC_TX_RATE} classic payment TPS plus the
@@ -91,6 +92,7 @@ Options:
   --enable-pdl                          Enable EXPERIMENTAL_PARALLEL_TX_SET_DOWNLOAD on all nodes (default off).
   --enable-tt                           Enable EXPERIMENTAL_TRIGGER_TIMER on all nodes (default off).
   --enable-hts                          Enable EXPERIMENTAL_HAS_TX_SET on all nodes (default off).
+  --enable-reask                        Set EXPERIMENTAL_TX_SET_FETCH_REASK_DELAY to 500 on all nodes (default off).
   -h, --help                            Show this help.
 
 Benchmark constants:
@@ -211,6 +213,10 @@ parse_args() {
 			ENABLE_HTS=1
 			shift
 			;;
+		--enable-reask)
+			ENABLE_REASK=1
+			shift
+			;;
 		-h | --help)
 			usage
 			exit 0
@@ -323,6 +329,11 @@ run_min_block_time_mixed() {
 		hts_flag=--enable-hts
 	fi
 
+	reask_flag=
+	if [ -n "$ENABLE_REASK" ]; then
+		reask_flag=--enable-reask
+	fi
+
 	dotnet run \
 		--project "$PROJECT" \
 		mission "$MISSION" \
@@ -338,6 +349,7 @@ run_min_block_time_mixed() {
 		$pdl_flag \
 		$tt_flag \
 		$hts_flag \
+		$reask_flag \
 		--classic-tx-rate="$CLASSIC_TX_RATE" \
 		--soroban-tx-rate="$soroban_tx_rate" \
 		--min-block-time-mixed-mode="$min_block_time_mixed_mode" \
