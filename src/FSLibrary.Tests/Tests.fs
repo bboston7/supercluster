@@ -81,6 +81,7 @@ let ctx : MissionContext =
       enableTt = false
       enableHts = false
       enableReask = false
+      fetchGrace = None
       peerFloodCapacityBytes = None
       outboundByteLimit = None
       sleepMainThread = None

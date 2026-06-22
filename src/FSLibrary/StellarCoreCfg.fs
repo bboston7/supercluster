@@ -306,6 +306,10 @@ type StellarCoreCfg =
         if self.network.missionContext.enableReask then
             t.Add("EXPERIMENTAL_TX_SET_FETCH_REASK_DELAY", 500) |> ignore
 
+        match self.network.missionContext.fetchGrace with
+        | Some grace -> t.Add("EXPERIMENTAL_TX_SET_FETCH_CLAIM_GRACE", grace) |> ignore
+        | None -> ()
+
         if self.updateSorobanCosts.IsSome then
             t.Add("UPDATE_SOROBAN_COSTS_DURING_PROTOCOL_UPGRADE_FOR_TESTING", self.updateSorobanCosts.Value)
             |> ignore

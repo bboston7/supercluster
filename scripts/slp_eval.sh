@@ -45,6 +45,7 @@ ENABLE_PDL=
 ENABLE_TT=
 ENABLE_HTS=
 ENABLE_REASK=
+FETCH_GRACE=
 
 IMAGE_REPOSITORY="746476062914.dkr.ecr.us-east-1.amazonaws.com/dev"
 
@@ -72,7 +73,7 @@ NETWORK_SIZE_LIMIT=277
 
 usage() {
 	cat <<EOF
-Usage: $0 --stellar-core-image IMAGE [--data-root PATH] [--sac RATE] [--oz RATE] [--soroswap RATE] [--network-size-limit N] [--enable-pdl] [--enable-tt] [--enable-hts] [--enable-reask]
+Usage: $0 --stellar-core-image IMAGE [--data-root PATH] [--sac RATE] [--oz RATE] [--soroswap RATE] [--network-size-limit N] [--fetch-grace N] [--enable-pdl] [--enable-tt] [--enable-hts] [--enable-reask]
 
 Runs one MinBlockTimeMixed mission per selected load flag against IMAGE.
 Each run always generates ${CLASSIC_TX_RATE} classic payment TPS plus the
@@ -89,6 +90,7 @@ Options:
   --soroswap RATE                       Run Soroswap load with the given Soroban tx rate.
                                         Can be supplied with other load flags to run benchmarks sequentially.
   --network-size-limit N                Number of pubnet nodes to simulate. Default ${NETWORK_SIZE_LIMIT}.
+  --fetch-grace N                       Set EXPERIMENTAL_TX_SET_FETCH_CLAIM_GRACE to N (default: stellar-core default).
   --enable-pdl                          Enable EXPERIMENTAL_PARALLEL_TX_SET_DOWNLOAD on all nodes (default off).
   --enable-tt                           Enable EXPERIMENTAL_TRIGGER_TIMER on all nodes (default off).
   --enable-hts                          Enable EXPERIMENTAL_HAS_TX_SET on all nodes (default off).
@@ -201,6 +203,19 @@ parse_args() {
 			NETWORK_SIZE_LIMIT="${1#*=}"
 			shift
 			;;
+		--fetch-grace)
+			if [ "$#" -lt 2 ] || [ -z "$2" ]; then
+				printf '%s\n' "--fetch-grace requires a value." >&2
+				usage >&2
+				exit 1
+			fi
+			FETCH_GRACE="$2"
+			shift 2
+			;;
+		--fetch-grace=*)
+			FETCH_GRACE="${1#*=}"
+			shift
+			;;
 		--enable-pdl)
 			ENABLE_PDL=1
 			shift
@@ -270,6 +285,12 @@ validate_args() {
 		usage >&2
 		exit 1
 	fi
+
+	if [ -n "$FETCH_GRACE" ] && ! is_nonnegative_integer "$FETCH_GRACE"; then
+		printf '%s\n' "--fetch-grace must be a non-negative integer." >&2
+		usage >&2
+		exit 1
+	fi
 }
 
 calculate_simulate_apply_duration() {
@@ -334,6 +355,11 @@ run_min_block_time_mixed() {
 		reask_flag=--enable-reask
 	fi
 
+	fetch_grace_arg=
+	if [ -n "$FETCH_GRACE" ]; then
+		fetch_grace_arg="--fetch-grace $FETCH_GRACE"
+	fi
+
 	dotnet run \
 		--project "$PROJECT" \
 		mission "$MISSION" \
@@ -362,6 +388,7 @@ run_min_block_time_mixed() {
 		--pubnet-data "$PUBNET_DATA" \
 		--tier1-keys "$TIER1_KEYS" \
 		--network-size-limit "$NETWORK_SIZE_LIMIT" \
+		$fetch_grace_arg \
 		--require-node-labels=purpose:largetests \
 		--enable-relaxed-auto-qset-config \
 		--tolerate-node-taints=largetests

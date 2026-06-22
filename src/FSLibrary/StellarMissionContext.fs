@@ -95,6 +95,7 @@ type MissionContext =
       enableTt: bool
       enableHts: bool
       enableReask: bool
+      fetchGrace: int option
       peerFloodCapacity: int option
       peerFloodCapacityBytes: int option
       sleepMainThread: int option

@@ -101,6 +101,7 @@ type MissionOptions
         enableTt: bool,
         enableHts: bool,
         enableReask: bool,
+        fetchGrace: int option,
         peerFloodCapacity: int option,
         peerFloodCapacityBytes: int option,
         sleepMainThread: int option,
@@ -444,6 +445,11 @@ type MissionOptions
              Required = false,
              Default = false)>]
     member self.EnableReask : bool = enableReask
+
+    [<Option("fetch-grace",
+             HelpText = "Set EXPERIMENTAL_TX_SET_FETCH_CLAIM_GRACE to the given integer",
+             Required = false)>]
+    member self.FetchGrace = fetchGrace
 
     [<Option("in-memory-buckets",
              HelpText = "Enable in-memory buckets by setting BUCKETLIST_DB_INDEX_PAGE_SIZE_EXPONENT=0",
@@ -857,6 +863,7 @@ let main argv =
                                enableTt = mission.EnableTt
                                enableHts = mission.EnableHts
                                enableReask = mission.EnableReask
+                               fetchGrace = mission.FetchGrace
                                peerFloodCapacity = mission.PeerFloodCapacity
                                peerFloodCapacityBytes = mission.PeerFloodCapacityBytes
                                outboundByteLimit = mission.OutboundByteLimit
