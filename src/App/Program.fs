@@ -422,6 +422,12 @@ type MissionOptions
              Default = false)>]
     member self.EnableParallelApply : bool = enableParallelApply
 
+    [<Option("in-memory-buckets",
+             HelpText = "Enable in-memory buckets by setting BUCKETLIST_DB_INDEX_PAGE_SIZE_EXPONENT=0",
+             Required = false,
+             Default = false)>]
+    member self.EnableInMemoryBuckets : bool = enableInMemoryBuckets
+
     [<Option("enable-pdl",
              HelpText = "Enable EXPERIMENTAL_PARALLEL_TX_SET_DOWNLOAD configuration",
              Required = false,
@@ -450,12 +456,6 @@ type MissionOptions
              HelpText = "Set EXPERIMENTAL_TX_SET_FETCH_CLAIM_GRACE to the given integer",
              Required = false)>]
     member self.FetchGrace = fetchGrace
-
-    [<Option("in-memory-buckets",
-             HelpText = "Enable in-memory buckets by setting BUCKETLIST_DB_INDEX_PAGE_SIZE_EXPONENT=0",
-             Required = false,
-             Default = false)>]
-    member self.EnableInMemoryBuckets : bool = enableInMemoryBuckets
 
     [<Option("peer-flood-capacity",
              HelpText = "A config parameter that controls how many flood messages (tx or SCP) from a particular peer core can process simultaneously (See PEER_FLOOD_READING_CAPACITY)",
